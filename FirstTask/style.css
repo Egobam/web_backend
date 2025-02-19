@@ -9,7 +9,7 @@ body {
 }
 
 header {
-    background-color: #6200ea;
+    background-color: #3700b3;
     color: white;
     padding: 20px;
     text-align: center;
@@ -33,6 +33,7 @@ footer {
     position: relative;
     bottom: 0;
     width: 100%;
+    font-size: 1.2rem;
 }
 
 /* Галерея */
