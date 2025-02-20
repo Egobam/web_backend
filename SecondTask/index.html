@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой слайдер</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slides">
+            <div class="slide">
+                <img src="../images2/http_connection.png" alt="Slide 1">
+                <div class="caption"> 1. Через PUTTY на 80 порту (Это стандартный порт HTTP) будем отправлять GET/POST запросы на
+                    сайт: u68860.kubsu-dev.ru
+                </div>
+            </div>
+            <div class="slide">
+                <img src="../images2/1.png" alt="Slide 2">
+                <div class="caption"> 2. Получим главную страницу методом GET в протоколе HTTP 1.0
+                    (HTTP/1.0 — это первая широко используемая версия протокола HTTP)
+                </div>
+            </div>
+            <div class="slide">
+                <img src="../images2/2.png" alt="Slide 3">
+                <div class="caption"> 3. Получим внутреннюю страницу методом GET в протоколе HTTP 1.1
+                    (HTTP/1.1 — это усовершенствованная версия протокола HTTP.
+                    Главное отличие от HTTP/1.0: в HTTP/1.1 Host: обязателен!)
+                </div>
+            </div>
+            <div class="slide">
+                <img src="../images2/3.png" alt="Slide 2">
+                <div class="caption"> 4. Определим размер файла file.tar.gz   
+                    Метод GET в HTTP используется для запроса данных с сервера.
+                </div>
+            </div>
+            <div class="slide">
+                <img src="../images2/4.png" alt="Slide 2">
+                <div class="caption"> 5. Определим медиатип ресурса /image.png;</div>
+            </div>
+            <div class="slide">
+                <img src="../images2/5.png" alt="Slide 2">
+                <div class="caption"> 6. Отправим комментарий на сервер по адресу /index.php
+                    Метод POST отправляет данные на сервер для создания или изменения ресурса
+                </div>
+            </div>
+            <div class="slide">
+                <img src="../images2/6.png" alt="Slide 2">
+                <div class="caption"> 7. Получим первые 100 байт файла /file.tar.gz</div>
+            </div>
+            <div class="slide">
+                <img src="../images2/7.png" alt="Slide 2">
+                <div class="caption"> 8. Определим кодировку ресурса /index.php</div>
+            </div>
+        </div>
+        <button class="prev" onclick="moveSlide(-1)">❮</button>
+        <button class="next" onclick="moveSlide(1)">❯</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

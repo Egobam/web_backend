@@ -1,0 +1,64 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9e4e8; /* Пастельный светло-розовый фон */
+}
+
+.slider-container {
+    width: 700px; /* Фиксированная ширина контейнера */
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.slide {
+    min-width: 100%;
+    text-align: center;
+    background-color: #fff; /* Фон для пустых областей вокруг изображения */
+}
+
+img {
+    width: 700px; /* Фиксированная ширина */
+    height: 400px; /* Фиксированная высота */
+    object-fit: contain; /* Показывает всё содержимое изображения без обрезки */
+}
+
+.caption {
+    padding: 15px; /* Увеличен отступ для удобства чтения */
+    font-size: 21px;
+    background-color: #fff;
+    width: 100%; /* Занимает всю ширину слайда */
+    box-sizing: border-box; /* Учитывает padding в ширину */
+    text-align: center; /* Центрирование текста для согласованности */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для выделения */
+    word-wrap: break-word; /* Перенос слов, если текст слишком длинный */
+}
+
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
