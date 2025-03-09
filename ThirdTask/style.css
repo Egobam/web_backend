@@ -11,10 +11,23 @@ h1 {
     color: #333;
 }
 
-label {
+/* Контейнер формы */
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Группа полей */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
     font-weight: bold;
-    margin-top: 10px;
     display: block;
+    margin-bottom: 5px;
 }
 
 input[type="text"],
@@ -25,17 +38,52 @@ textarea,
 select {
     width: 100%;
     padding: 8px;
-    margin: 5px 0 15px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
 }
 
-input[type="radio"],
-input[type="checkbox"] {
-    margin-right: 5px;
+textarea {
+    resize: vertical;
 }
 
+select {
+    height: 100px;
+}
+
+/* Радиокнопки в строку */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-group input[type="radio"] {
+    margin: 0 5px 0 0;
+}
+
+.radio-group label {
+    display: inline;
+    margin: 0;
+}
+
+/* Чекбокс */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin: 0;
+}
+
+.checkbox-group label {
+    display: inline;
+    margin: 0;
+}
+
+/* Кнопка */
 input[type="submit"] {
     background-color: #4CAF50;
     color: white;
@@ -43,12 +91,28 @@ input[type="submit"] {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    display: block;
+    width: 100%;
+    font-size: 16px;
 }
 
 input[type="submit"]:hover {
     background-color: #45a049;
 }
 
-select {
-    height: 100px; /* Для множественного выбора */
+/* Стили для сообщений */
+.error-box {
+    color: red;
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.success-box {
+    color: green;
+    border: 1px solid green;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
 }
