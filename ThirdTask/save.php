@@ -88,7 +88,7 @@ try {
         $insert->execute([$user_id, $lang_id]);
     }
 
-    echo "<h2>Данные успешно сохранены!</h2><a href='index.html'>Вернуться к форме</a>";
+    echo "<h2>Данные успешно сохранены!</h2><a href='index.php'>Вернуться к форме</a>";
 } catch (PDOException $e) {
     die("Ошибка сохранения: " . $e->getMessage());
 }
