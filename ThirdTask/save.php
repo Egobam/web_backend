@@ -1,8 +1,8 @@
 <?php
 // Подключение к базе данных
-$dsn = 'mysql:host=localhost;dbname=<u68860>;charset=utf8';
-$username = '<u68860>';
-$password = '<8500150>';
+$dsn = 'mysql:host=localhost;dbname=u68860;charset=utf8';
+$username = 'u68860';
+$password = '8500150';
 try {
     $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
