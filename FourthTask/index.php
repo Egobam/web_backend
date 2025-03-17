@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+$values = isset($_COOKIE['form_values']) ? unserialize($_COOKIE['form_values']) : [];
+$errors = isset($_COOKIE['form_errors']) ? unserialize($_COOKIE['form_errors']) : [];
+
+if (!empty($errors)) {
+    setcookie('form_errors', '', time() - 3600, '/');
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -7,65 +18,113 @@
 </head>
 <body>
     <h1>Заполните форму</h1>
-    <div id="error-container" class="error-box" style="display: none;"></div>
+    
+    <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+        <div class="success-box">Данные успешно сохранены!</div>
+    <?php endif; ?>
+
+    <?php if (!empty($errors)): ?>
+        <div class="error-box">
+            <?php foreach ($errors as $field => $message): ?>
+                <p>Ошибка в поле '<?=$field?>': <?=$message?></p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
     <form action="save.php" method="POST">
         <div class="form-group">
             <label for="fio">ФИО:</label><br>
-            <input type="text" id="fio" name="fio" required>
+            <div class="textInputWrapper">
+                <input type="text" id="fio" name="fio" placeholder="Введите ФИО" value="<?= htmlspecialchars($values['fio'] ?? '') ?>"
+                       class="textInput <?= isset($errors['fio']) ? 'error-field' : '' ?>" required>
+            </div>
+            <?php if (isset($errors['fio'])): ?>
+                <span class="error"><?=$errors['fio']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="phone">Телефон:</label><br>
-            <input type="tel" id="phone" name="phone" required>
+            <div class="textInputWrapper">
+                <input type="tel" id="phone" name="phone" placeholder="Введите телефон" value="<?= htmlspecialchars($values['phone'] ?? '') ?>"
+                       class="textInput <?= isset($errors['phone']) ? 'error-field' : '' ?>" required>
+            </div>
+            <?php if (isset($errors['phone'])): ?>
+                <span class="error"><?=$errors['phone']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="email">E-mail:</label><br>
-            <input type="email" id="email" name="email" required>
+            <div class="textInputWrapper">
+                <input type="email" id="email" name="email" placeholder="Введите email" value="<?= htmlspecialchars($values['email'] ?? '') ?>"
+                       class="textInput <?= isset($errors['email']) ? 'error-field' : '' ?>" required>
+            </div>
+            <?php if (isset($errors['email'])): ?>
+                <span class="error"><?=$errors['email']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="birthdate">Дата рождения:</label><br>
-            <input type="date" id="birthdate" name="birthdate" required>
+            <div class="textInputWrapper">
+                <input type="date" id="birthdate" name="birthdate" value="<?= htmlspecialchars($values['birthdate'] ?? '') ?>"
+                       class="textInput <?= isset($errors['birthdate']) ? 'error-field' : '' ?>" required>
+            </div>
+            <?php if (isset($errors['birthdate'])): ?>
+                <span class="error"><?=$errors['birthdate']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group radio-group">
             <label>Пол:</label><br>
-            <input type="radio" id="male" name="gender" value="male" required>
+            <input type="radio" id="male" name="gender" value="male" <?= ($values['gender'] ?? '') === 'male' ? 'checked' : '' ?> required>
             <label for="male">Мужской</label>
-            <input type="radio" id="female" name="gender" value="female">
+            <input type="radio" id="female" name="gender" value="female" <?= ($values['gender'] ?? '') === 'female' ? 'checked' : '' ?>>
             <label for="female">Женский</label>
+            <?php if (isset($errors['gender'])): ?>
+                <span class="error"><?=$errors['gender']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="languages">Любимый язык программирования:</label><br>
-            <select id="languages" name="languages[]" multiple required>
-                <option value="Pascal">Pascal</option>
-                <option value="C">C</option>
-                <option value="C++">C++</option>
-                <option value="JavaScript">JavaScript</option>
-                <option value="PHP">PHP</option>
-                <option value="Python">Python</option>
-                <option value="Java">Java</option>
-                <option value="Haskell">Haskell</option>
-                <option value="Clojure">Clojure</option>
-                <option value="Prolog">Prolog</option>
-                <option value="Scala">Scala</option>
-                <option value="Go">Go</option>
+            <select id="languages" name="languages[]" multiple class="<?= isset($errors['languages']) ? 'error-field' : '' ?>" required>
+                <?php
+                $langs = ['Pascal', 'C', 'C++', 'JavaScript', 'PHP', 'Python', 'Java', 'Haskell', 'Clojure', 'Prolog', 'Scala', 'Go'];
+                foreach ($langs as $lang) {
+                    $selected = in_array($lang, $values['languages'] ?? []) ? 'selected' : '';
+                    echo "<option value='$lang' $selected>$lang</option>";
+                }
+                ?>
             </select>
+            <?php if (isset($errors['languages'])): ?>
+                <span class="error"><?=$errors['languages']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group">
             <label for="bio">Биография:</label><br>
-            <textarea id="bio" name="bio" rows="5" required></textarea>
+            <div class="textInputWrapper">
+                <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="textInput <?= isset($errors['bio']) ? 'error-field' : '' ?>" required><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
+            </div>
+            <?php if (isset($errors['bio'])): ?>
+                <span class="error"><?=$errors['bio']?></span>
+            <?php endif; ?>
         </div>
 
         <div class="form-group checkbox-group">
-            <input type="checkbox" id="contract" name="contract" value="yes" required>
-            <label for="contract">С контрактом ознакомлен(а)</label>
+            <label class="checkbox" for="contract">
+                <span class="label">С контрактом ознакомлен(а)</span>
+                <input type="checkbox" id="contract" name="contract" value="yes" <?= isset($values['contract']) ? 'checked' : '' ?> required>
+                <span class="checkmark"></span>
+            </label>
+            <?php if (isset($errors['contract'])): ?>
+                <span class="error"><?=$errors['contract']?></span>
+            <?php endif; ?>
         </div>
 
-        <input type="submit" value="Сохранить">
+        <button type="submit"><span>Сохранить</span></button>
     </form>
 </body>
 </html>

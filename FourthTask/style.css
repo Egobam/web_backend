@@ -3,12 +3,13 @@ body {
     max-width: 600px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #f4f4f4;
+    background-color: #252525; /* Темный фон */
+    color: #e8e8e8; /* Светлый текст */
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: #e8e8e8;
 }
 
 .form-group {
@@ -21,27 +22,84 @@ h1 {
     margin-bottom: 5px;
 }
 
-input[type="text"],
-input[type="tel"],
-input[type="email"],
-input[type="date"],
-textarea,
-select {
+/* Поля ввода */
+.textInputWrapper {
+    position: relative;
+    width: 100%; /* Полная ширина вместо 180px */
+    margin: 12px 5px;
+    --accent-color: #a3e583;
+}
+
+.textInputWrapper:before {
+    transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42); /* Светлая линия для темного фона */
+}
+
+.textInputWrapper:before,
+.textInputWrapper:after {
+    content: "";
+    left: 0;
+    right: 0;
+    position: absolute;
+    pointer-events: none;
+    bottom: -1px;
+    z-index: 4;
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
 }
 
-textarea {
-    resize: vertical;
+.textInputWrapper:focus-within:before {
+    border-bottom: 1px solid var(--accent-color);
 }
 
-select {
+.textInputWrapper:after {
+    content: "";
+    transform: scaleX(0);
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    will-change: transform;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.textInputWrapper:focus-within:after {
+    transform: scaleX(1);
+}
+
+.textInput::placeholder {
+    transition: opacity 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    opacity: 1;
+    user-select: none;
+    color: rgba(255, 255, 255, 0.582);
+}
+
+.textInput {
+    border-radius: 5px 5px 0px 0px;
+    box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
+    max-height: 36px;
+    background-color: #353535; /* Темный фон поля */
+    transition: background-color 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: #e8e8e8;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    width: 100%;
+    border: none;
+}
+
+textarea.textInput {
+    max-height: none;
     height: 100px;
 }
 
+.textInput:focus,
+.textInput:active {
+    outline: none;
+    background-color: #454545; /* Чуть светлее при фокусе */
+}
+
+.textInputWrapper:focus-within .textInput::placeholder {
+    opacity: 0;
+}
+
+/* Радиокнопки */
 .radio-group {
     display: flex;
     gap: 20px;
@@ -57,53 +115,145 @@ select {
     margin: 0;
 }
 
+/* Чекбокс */
 .checkbox-group {
     display: flex;
     align-items: center;
-    gap: 5px;
 }
 
-.checkbox-group input[type="checkbox"] {
-    margin: 0;
+.checkbox {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    font-family: Arial, sans-serif;
+    color: #e8e8e8;
 }
 
-.checkbox-group label {
-    display: inline;
-    margin: 0;
+.checkbox input {
+    display: none;
 }
 
-input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
+.checkbox .checkmark {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background-color: #ffffff2b;
+    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, rgba(0, 0, 0, 0.21) 0px 0px 0px 24px inset,
+          #22cc3f 0px 0px 0px 0px inset, rgba(224, 224, 224, 0.45) 0px 1px 0px 0px;
     cursor: pointer;
-    display: block;
+    position: relative;
+}
+
+.checkbox .checkmark::after {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background-color: #e3e3e3;
+    box-shadow: transparent 0px 0px 0px 2px, rgba(0, 0, 0, 0.3) 0px 6px 6px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: background-color 0.3s ease-in-out;
+}
+
+.checkbox input:checked + .checkmark {
+    background-color: #22cc3f;
+    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, #22cc3f 0px 0px 0px 2px inset,
+          #22cc3f 0px 0px 0px 24px inset, rgba(224, 224, 224, 0.45) 0px 1px 0px 0px;
+}
+
+.checkbox input:checked + .checkmark::after {
+    background-color: white;
+}
+
+.checkbox .label {
+    margin-right: 10px;
+    user-select: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Кнопка */
+button {
+    padding: 0.1em 0.25em;
+    width: 13em;
+    height: 4.2em;
+    background-color: #212121;
+    border: 0.08em solid #fff;
+    border-radius: 0.3em;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+button span {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0.4em;
+    width: 8.25em;
+    height: 2.5em;
+    background-color: #212121;
+    border-radius: 0.2em;
+    font-size: 1.5em;
+    color: #fff;
+    border: 0.08em solid #fff;
+    box-shadow: 0 0.4em 0.1em 0.019em #fff;
+}
+
+button span:hover {
+    transition: all 0.5s;
+    transform: translate(0, 0.4em);
+    box-shadow: 0 0 0 0 #fff;
+}
+
+button span:not(:hover) {
+    transition: all 1s;
+}
+
+/* Выпадающий список */
+select {
     width: 100%;
-    font-size: 16px;
+    padding: 12px;
+    border-radius: 5px;
+    background-color: #353535;
+    color: #e8e8e8;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
 }
 
-input[type="submit"]:hover {
-    background-color: #45a049;
+select:focus {
+    outline: none;
+    background-color: #454545;
 }
 
+/* Ошибки и успех */
 .error-box {
-    color: red;
-    border: 1px solid red;
+    color: #ff5555;
+    border: 1px solid #ff5555;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
 }
 
 .success-box {
-    color: green;
-    border: 1px solid green;
+    color: #22cc3f;
+    border: 1px solid #22cc3f;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
 }
 
 .error-field {
-    border: 2px solid red;
+    border: 2px solid #ff5555 !important;
+}
+
+.error {
+    color: #ff5555;
+    font-size: 0.9em;
+    display: block;
+    margin-top: 5px;
 }
