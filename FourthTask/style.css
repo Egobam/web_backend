@@ -15,21 +15,21 @@ h1 {
 
 .form-group {
     margin-bottom: 15px;
-    text-align: center; /* Центрируем весь блок */
+    text-align: center;
 }
 
 .form-group label {
     font-weight: 700;
     display: block;
     margin-bottom: 5px;
-    text-align: center; /* Названия по центру */
+    text-align: center;
 }
 
 /* Поля ввода */
 .textInputWrapper {
     position: relative;
     width: 100%;
-    margin: 0 auto; /* Центрируем поля */
+    margin: 0 auto;
     --accent-color: #a3e583;
 }
 
@@ -129,57 +129,66 @@ textarea.textInput {
     justify-content: center;
 }
 
-.checkbox {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    font-family: 'Titillium Web', Arial, sans-serif;
+.container {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    font-size: 1.5rem;
+    user-select: none;
     color: #e8e8e8;
 }
 
-.checkbox input {
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    --clr: #0B6E4F;
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 1.3em;
+    width: 1.3em;
+    background-color: #ccc;
+    border-radius: 50%;
+    transition: 300ms;
+}
+
+.container input:checked ~ .checkmark {
+    background-color: var(--clr);
+    border-radius: .5rem;
+    animation: pulse 500ms ease-in-out;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
     display: none;
 }
 
-.checkbox .checkmark {
-    width: 28px;
-    height: 28px;
-    border-radius: 10px;
-    background-color: #353535; /* Темный фон в неактивном состоянии */
-    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, rgba(0, 0, 0, 0.21) 0px 0px 0px 24px inset;
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.3s ease-in-out;
+.container input:checked ~ .checkmark:after {
+    display: block;
 }
 
-.checkbox .checkmark::after {
-    content: "";
-    width: 18px;
-    height: 18px;
-    border-radius: 5px;
-    background-color: #e3e3e3;
-    box-shadow: transparent 0px 0px 0px 2px, rgba(0, 0, 0, 0.3) 0px 6px 6px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transition: background-color 0.3s ease-in-out;
+.container .checkmark:after {
+    left: 0.45em;
+    top: 0.25em;
+    width: 0.25em;
+    height: 0.5em;
+    border: solid #E0E0E2;
+    border-width: 0 0.15em 0.15em 0;
+    transform: rotate(45deg);
 }
 
-.checkbox input:checked + .checkmark {
-    background-color: #22cc3f; /* Зеленый при активации */
-    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, #22cc3f 0px 0px 0px 2px inset;
-}
-
-.checkbox input:checked + .checkmark::after {
-    background-color: white;
-}
-
-.checkbox .label {
-    margin-right: 10px;
-    user-select: none;
-    font-weight: 700;
-    cursor: pointer;
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 #0B6E4F90; rotate: 20deg; }
+    50% { rotate: -20deg; }
+    75% { box-shadow: 0 0 0 10px #0B6E4F60; }
+    100% { box-shadow: 0 0 0 13px #0B6E4F30; rotate: 0; }
 }
 
 /* Кнопка */
@@ -193,7 +202,7 @@ button {
     font-size: 12px;
     cursor: pointer;
     display: block;
-    margin: 0 auto; /* Центрируем кнопку */
+    margin: 0 auto;
 }
 
 button span {

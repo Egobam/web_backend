@@ -117,8 +117,8 @@ if (!empty($errors)) {
         </div>
 
         <div class="form-group checkbox-group">
-            <label class="checkbox" for="contract">
-                <span class="label">С контрактом ознакомлен(а)</span>
+            <label class="container">
+                С контрактом ознакомлен(а)
                 <input type="checkbox" id="contract" name="contract" value="yes" <?= ($values['contract'] ?? '') === 'yes' ? 'checked' : '' ?> required>
                 <span class="checkmark"></span>
             </label>
