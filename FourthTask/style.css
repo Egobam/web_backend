@@ -1,38 +1,41 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Titillium Web', Arial, sans-serif;
     max-width: 600px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #252525; /* Темный фон */
-    color: #e8e8e8; /* Светлый текст */
+    background-color: #252525;
+    color: #e8e8e8;
 }
 
 h1 {
     text-align: center;
     color: #e8e8e8;
+    font-weight: 700;
 }
 
 .form-group {
     margin-bottom: 15px;
+    text-align: center; /* Центрируем весь блок */
 }
 
 .form-group label {
-    font-weight: bold;
+    font-weight: 700;
     display: block;
     margin-bottom: 5px;
+    text-align: center; /* Названия по центру */
 }
 
 /* Поля ввода */
 .textInputWrapper {
     position: relative;
-    width: 100%; /* Полная ширина вместо 180px */
-    margin: 12px 5px;
+    width: 100%;
+    margin: 0 auto; /* Центрируем поля */
     --accent-color: #a3e583;
 }
 
 .textInputWrapper:before {
     transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.42); /* Светлая линия для темного фона */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42);
 }
 
 .textInputWrapper:before,
@@ -74,7 +77,7 @@ h1 {
     border-radius: 5px 5px 0px 0px;
     box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
     max-height: 36px;
-    background-color: #353535; /* Темный фон поля */
+    background-color: #353535;
     transition: background-color 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
     color: #e8e8e8;
     font-size: 14px;
@@ -92,7 +95,7 @@ textarea.textInput {
 .textInput:focus,
 .textInput:active {
     outline: none;
-    background-color: #454545; /* Чуть светлее при фокусе */
+    background-color: #454545;
 }
 
 .textInputWrapper:focus-within .textInput::placeholder {
@@ -101,7 +104,12 @@ textarea.textInput {
 
 /* Радиокнопки */
 .radio-group {
+    text-align: center;
+}
+
+.radio-wrapper {
     display: flex;
+    justify-content: center;
     gap: 20px;
     align-items: center;
 }
@@ -118,14 +126,14 @@ textarea.textInput {
 /* Чекбокс */
 .checkbox-group {
     display: flex;
-    align-items: center;
+    justify-content: center;
 }
 
 .checkbox {
     display: flex;
     align-items: center;
     margin: 10px 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Titillium Web', Arial, sans-serif;
     color: #e8e8e8;
 }
 
@@ -137,11 +145,11 @@ textarea.textInput {
     width: 28px;
     height: 28px;
     border-radius: 10px;
-    background-color: #ffffff2b;
-    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, rgba(0, 0, 0, 0.21) 0px 0px 0px 24px inset,
-          #22cc3f 0px 0px 0px 0px inset, rgba(224, 224, 224, 0.45) 0px 1px 0px 0px;
+    background-color: #353535; /* Темный фон в неактивном состоянии */
+    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, rgba(0, 0, 0, 0.21) 0px 0px 0px 24px inset;
     cursor: pointer;
     position: relative;
+    transition: background-color 0.3s ease-in-out;
 }
 
 .checkbox .checkmark::after {
@@ -159,9 +167,8 @@ textarea.textInput {
 }
 
 .checkbox input:checked + .checkmark {
-    background-color: #22cc3f;
-    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, #22cc3f 0px 0px 0px 2px inset,
-          #22cc3f 0px 0px 0px 24px inset, rgba(224, 224, 224, 0.45) 0px 1px 0px 0px;
+    background-color: #22cc3f; /* Зеленый при активации */
+    box-shadow: rgba(0, 0, 0, 0.62) 0px 0px 5px inset, #22cc3f 0px 0px 0px 2px inset;
 }
 
 .checkbox input:checked + .checkmark::after {
@@ -185,6 +192,8 @@ button {
     border-radius: 0.3em;
     font-size: 12px;
     cursor: pointer;
+    display: block;
+    margin: 0 auto; /* Центрируем кнопку */
 }
 
 button span {
@@ -237,6 +246,7 @@ select:focus {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
+    text-align: center;
 }
 
 .success-box {
@@ -245,6 +255,7 @@ select:focus {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
+    text-align: center;
 }
 
 .error-field {
@@ -256,4 +267,5 @@ select:focus {
     font-size: 0.9em;
     display: block;
     margin-top: 5px;
+    text-align: center;
 }
