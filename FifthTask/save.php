@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$dsn = 'mysql:host=localhost;dbname=u688 Radar60;charset=utf8';
+$dsn = 'mysql:host=localhost;dbname=u68860;charset=utf8';
 $username = 'u68860';
 $password = '8500150';
 try {
