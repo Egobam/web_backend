@@ -1,0 +1,272 @@
+body {
+    font-family: 'Titillium Web', Arial, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #252525;
+    color: #e8e8e8;
+}
+
+h1 {
+    text-align: center;
+    color: #e8e8e8;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.form-group label {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+/* Поля ввода */
+.textInputWrapper {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    --accent-color: #a3e583;
+}
+
+.textInputWrapper:before {
+    transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+}
+
+.textInputWrapper:before,
+.textInputWrapper:after {
+    content: "";
+    left: 0;
+    right: 0;
+    position: absolute;
+    pointer-events: none;
+    bottom: -1px;
+    z-index: 4;
+    width: 100%;
+}
+
+.textInputWrapper:focus-within:before {
+    border-bottom: 1px solid var(--accent-color);
+}
+
+.textInputWrapper:after {
+    content: "";
+    transform: scaleX(0);
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    will-change: transform;
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.textInputWrapper:focus-within:after {
+    transform: scaleX(1);
+}
+
+.textInput::placeholder {
+    transition: opacity 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    opacity: 1;
+    user-select: none;
+    color: rgba(255, 255, 255, 0.582);
+}
+
+.textInput {
+    border-radius: 5px 5px 0px 0px;
+    box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
+    max-height: 36px;
+    background-color: #353535;
+    transition: background-color 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: #e8e8e8;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    width: 100%;
+    border: none;
+}
+
+textarea.textInput {
+    max-height: none;
+    height: 100px;
+}
+
+.textInput:focus,
+.textInput:active {
+    outline: none;
+    background-color: #454545;
+}
+
+.textInputWrapper:focus-within .textInput::placeholder {
+    opacity: 0;
+}
+
+/* Радиокнопки */
+.radio-group {
+    text-align: center;
+}
+
+.radio-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-group input[type="radio"] {
+    margin: 0 5px 0 0;
+}
+
+.radio-group label {
+    display: inline;
+    margin: 0;
+}
+
+/* Чекбокс */
+.checkbox-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-label {
+    font-weight: 700;
+    color: #e8e8e8;
+}
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 24px;
+    width: 24px;
+    z-index: 2; /* Убедитесь, что input выше .checkmark */
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: #ccc;
+    border-radius: 4px;
+    z-index: 1; /* Убедитесь, что .checkmark ниже input */
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #0B6E4F;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 8px;
+    top: 4px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Кнопка */
+button {
+    padding: 0.1em 0.25em;
+    width: 13em;
+    height: 4.2em;
+    background-color: #212121;
+    border: 0.08em solid #fff;
+    border-radius: 0.3em;
+    font-size: 12px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+button span {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0.4em;
+    width: 8.25em;
+    height: 2.5em;
+    background-color: #212121;
+    border-radius: 0.2em;
+    font-size: 1.5em;
+    color: #fff;
+    border: 0.08em solid #fff;
+    box-shadow: 0 0.4em 0.1em 0.019em #fff;
+}
+
+button span:hover {
+    transition: all 0.5s;
+    transform: translate(0, 0.4em);
+    box-shadow: 0 0 0 0 #fff;
+}
+
+button span:not(:hover) {
+    transition: all 1s;
+}
+
+/* Выпадающий список */
+select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    background-color: #353535;
+    color: #e8e8e8;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
+}
+
+select:focus {
+    outline: none;
+    background-color: #454545;
+}
+
+/* Ошибки и успех */
+.error-box {
+    color: #ff5555;
+    border: 1px solid #ff5552;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.success-box {
+    color: #22cc3f;
+    border: 1px solid #22cc3f;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.error-field {
+    border: 2px solid #ff5555 !important;
+}
+
+.error {
+    color: #ff5555;
+    font-size: 0.9em;
+    display: block;
+    margin-top: 5px;
+    text-align: center;
+}
