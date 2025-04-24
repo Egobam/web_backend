@@ -138,29 +138,29 @@ textarea.textInput {
 
 .custom-checkbox {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center; /* Выравнивание по вертикали */
     cursor: pointer;
-}
-
-.custom-checkbox input {
+  }
+  
+  .custom-checkbox input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
     height: 24px;
     width: 24px;
-    z-index: 2; /* Убедитесь, что input выше .checkmark */
-}
-
-.checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
+    z-index: 2;
+  }
+  
+  .checkmark {
+    position: relative; /* Изменено с absolute на relative */
     height: 24px;
     width: 24px;
     background-color: #ccc;
     border-radius: 4px;
-    z-index: 1; /* Убедитесь, что .checkmark ниже input */
-}
+    z-index: 1;
+    margin-right: 8px; /* Отступ от текста */
+  }
 
 .custom-checkbox input:checked ~ .checkmark {
     background-color: #0B6E4F;
