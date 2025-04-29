@@ -179,7 +179,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
         <?php endif; ?>
         
-        <h2>Вход пользователя</h2>
+        <h2>Вход</h2>
         <form action="save.php?action=login" method="POST">
             <div class="form-group">
                 <label for="login">Логин:</label>
@@ -195,26 +195,20 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
             
+            <div class="form-group radio-group">
+                <label>Войти как:</label>
+                <div class="radio-wrapper">
+                    <input type="radio" id="role_user" name="role" value="user" checked required>
+                    <label for="role_user">Пользователь</label>
+                    <input type="radio" id="role_admin" name="role" value="admin">
+                    <label for="role_admin">Администратор</label>
+                </div>
+                <?php if (isset($errors['role'])): ?>
+                    <span class="error"><?=$errors['role']?></span>
+                <?php endif; ?>
+            </div>
+            
             <button type="submit"><span>Войти</span></button>
-        </form>
-        
-        <h2>Вход администратора</h2>
-        <form action="save.php?action=admin_login" method="POST">
-            <div class="form-group">
-                <label for="admin_login">Логин:</label>
-                <div class="textInputWrapper">
-                    <input type="text" id="admin_login" name="login" placeholder="Введите логин администратора" required class="textInput">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="admin_password">Пароль:</label>
-                <div class="textInputWrapper">
-                    <input type="password" id="admin_password" name="password" placeholder="Введите пароль администратора" required class="textInput">
-                </div>
-            </div>
-            
-            <button type="submit"><span>Войти как администратор</span></button>
         </form>
         
         <h2>Регистрация</h2>
