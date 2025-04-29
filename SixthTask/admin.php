@@ -147,7 +147,7 @@ unset($_SESSION['form_values']);
     <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Admin Panel</h1>
+    <h1>Панель администратора</h1>
     <p><a href="save.php?action=logout">Выйти</a></p>
 
     <?php if (isset($_GET['success'])): ?>
