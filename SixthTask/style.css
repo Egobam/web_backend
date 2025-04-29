@@ -195,7 +195,6 @@ button {
     cursor: pointer;
     display: block;
     margin: 0 auto;
-    overflow: hidden; /* Добавлено: скрывает содержимое, выходящее за границы */
 }
 
 button span {
@@ -204,18 +203,14 @@ button span {
     justify-content: center;
     align-items: center;
     bottom: 0.4em;
-    width: 100%; /* Изменено с 8.25em на 100% */
+    width: 8.25em;
     height: 2.5em;
     background-color: #212121;
     border-radius: 0.2em;
-    font-size: 1.2em; /* Уменьшен размер шрифта */
+    font-size: 1.5em;
     color: #fff;
     border: 0.08em solid #fff;
     box-shadow: 0 0.4em 0.1em 0.019em #fff;
-    white-space: nowrap; /* Запрет переноса текста */
-    overflow: hidden; /* Скрытие выходящего текста */
-    text-overflow: ellipsis; /* Добавление многоточия при переполнении */
-    padding: 0 0.5em; /* Добавлены внутренние отступы */
 }
 
 button span:hover {
