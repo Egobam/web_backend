@@ -41,31 +41,38 @@ if ($action === 'edit' && $user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
 
     // Валидация
-    if (!preg_match("/^[а-я==/u", trim($values['fio'] ?? ''))) {
-        $errors['fio'] = "Only letters and spaces, up to 150 characters";
+    if (!preg_match("/^[а-яА-Яa-zA-Z\s]{1,150}$/u", trim($values['fio'] ?? ''))) {
+        $errors['fio'] = "Допустимы только буквы и пробелы, длина до 150 символов";
     }
+
     if (!preg_match("/^(\+7|8)\d{10}$/", trim($values['phone'] ?? ''))) {
-        $errors['phone'] = "Format: +7XXXXXXXXXX or 8XXXXXXXXXX";
+        $errors['phone'] = "Допустимы форматы: +7XXXXXXXXXX или 8XXXXXXXXXX";
     }
+
     if (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", trim($values['email'] ?? ''))) {
-        $errors['email'] = "Invalid email format";
+        $errors['email'] = "Допустимы латинские буквы, цифры, ._%+- и корректный домен";
     }
+
     if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $values['birthdate'] ?? '') || strtotime($values['birthdate']) > time()) {
-        $errors['birthdate'] = "Format: YYYY-MM-DD, not future date";
+        $errors['birthdate'] = "Допустим формат ГГГГ-ММ-ДД, дата не позже текущей";
     }
+
     if (!in_array($values['gender'] ?? '', ['male', 'female'])) {
-        $errors['gender'] = "Select male or female";
+        $errors['gender'] = "Допустимы только значения: мужской или женский";
     }
+
     $valid_languages = ['Pascal', 'C', 'C++', 'JavaScript', 'PHP', 'Python', 'Java', 'Haskell', 'Clojure', 'Prolog', 'Scala', 'Go'];
     $languages = $values['languages'] ?? [];
     if (empty($languages) || count(array_diff($languages, $valid_languages)) > 0) {
-        $errors['languages'] = "Select at least one valid language";
+        $errors['languages'] = "Допустимы только языки из списка, выберите хотя бы один";
     }
+
     if (!preg_match("/^[\s\S]{1,1000}$/", trim($values['bio'] ?? ''))) {
-        $errors['bio'] = "Up to 1000 characters";
+        $errors['bio'] = "Допустимы любые символы, длина до 1000 символов";
     }
+
     if (!isset($values['contract']) || $values['contract'] !== 'yes') {
-        $errors['contract'] = "Must agree to contract";
+        $errors['contract'] = "Необходимо согласиться с контрактом";
     }
 
     if (empty($errors)) {
