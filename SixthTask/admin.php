@@ -1,5 +1,8 @@
 <?php
 session_start();
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 $dsn = 'mysql:host=localhost;dbname=u68860;charset=utf8';
 $username = 'u68860';
