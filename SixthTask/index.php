@@ -63,7 +63,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="fio">ФИО:</label>
                 <div class="textInputWrapper">
                     <input type="text" id="fio" name="fio" placeholder="Введите ФИО" value="<?= htmlspecialchars($values['fio'] ?? '') ?>"
-                           class="textInput <?= isset($errors['fio']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['fio']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['fio'])): ?>
                     <span class="error"><?=$errors['fio']?></span>
@@ -74,7 +74,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="phone">Телефон:</label>
                 <div class="textInputWrapper">
                     <input type="tel" id="phone" name="phone" placeholder="Введите телефон" value="<?= htmlspecialchars($values['phone'] ?? '') ?>"
-                           class="textInput <?= isset($errors['phone']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['phone']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['phone'])): ?>
                     <span class="error"><?=$errors['phone']?></span>
@@ -85,7 +85,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="email">E-mail:</label>
                 <div class="textInputWrapper">
                     <input type="email" id="email" name="email" placeholder="Введите email" value="<?= htmlspecialchars($values['email'] ?? '') ?>"
-                           class="textInput <?= isset($errors['email']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['email']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['email'])): ?>
                     <span class="error"><?=$errors['email']?></span>
@@ -96,7 +96,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="birthdate">Дата рождения:</label>
                 <div class="textInputWrapper">
                     <input type="date" id="birthdate" name="birthdate" value="<?= htmlspecialchars($values['birthdate'] ?? '') ?>"
-                           class="textInput <?= isset($errors['birthdate']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['birthdate']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['birthdate'])): ?>
                     <span class="error"><?=$errors['birthdate']?></span>
@@ -106,7 +106,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group radio-group">
                 <label>Пол:</label>
                 <div class="radio-wrapper">
-                    <input type="radio" id="male" name="gender" value="male" <?= ($values['gender'] ?? '') === 'male' ? 'checked' : '' ?>>
+                    <input type="radio" id="male" name="gender" value="male" <?= ($values['gender'] ?? '') === 'male' ? 'checked' : '' ?> required>
                     <label for="male">Мужской</label>
                     <input type="radio" id="female" name="gender" value="female" <?= ($values['gender'] ?? '') === 'female' ? 'checked' : '' ?>>
                     <label for="female">Женский</label>
@@ -118,7 +118,7 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="form-group">
                 <label for="languages">Любимый язык программирования:</label>
-                <select id="languages" name="languages[]" multiple class="<?= isset($errors['languages']) ? 'error-field' : '' ?>">
+                <select id="languages" name="languages[]" multiple class="<?= isset($errors['languages']) ? 'error-field' : '' ?>" required>
                     <?php
                     $langs = ['Pascal', 'C', 'C++', 'JavaScript', 'PHP', 'Python', 'Java', 'Haskell', 'Clojure', 'Prolog', 'Scala', 'Go'];
                     foreach ($langs as $lang) {
@@ -135,7 +135,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group">
                 <label for="bio">Биография:</label>
                 <div class="textInputWrapper">
-                    <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="textInput <?= isset($errors['bio']) ? 'error-field' : '' ?>"><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
+                    <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="textInput <?= isset($errors['bio']) ? 'error-field' : '' ?>" required><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
                 </div>
                 <?php if (isset($errors['bio'])): ?>
                     <span class="error"><?=$errors['bio']?></span>
@@ -145,7 +145,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group checkbox-group">
                 <label class="checkbox-label">С контрактом ознакомлен(а)</label>
                 <div class="custom-checkbox">
-                    <input type="checkbox" id="contract" name="contract" value="yes" <?= ($values['contract'] ?? '') === 'yes' ? 'checked' : '' ?>>
+                    <input type="checkbox" id="contract" name="contract" value="yes" <?= ($values['contract'] ?? '') === 'yes' ? 'checked' : '' ?> required>
                     <span class="checkmark"></span>
                 </div>
                 <?php if (isset($errors['contract'])): ?>
@@ -155,10 +155,6 @@ if (isset($_SESSION['user_id'])) {
 
             <button type="submit"><span>Сохранить</span></button>
         </form>
-    <?php elseif (isset($_SESSION['admin_id'])): ?>
-        <h1>Панель администратора</h1>
-        <p><a href="save.php?action=logout">Выйти</a></p>
-        <p><a href="admin.php">Перейти к управлению пользователями</a></p>
     <?php else: ?>
         <h1>Вход / Регистрация</h1>
         
@@ -179,33 +175,20 @@ if (isset($_SESSION['user_id'])) {
             </div>
         <?php endif; ?>
         
-        <h2>Вход</h2>
+        <h2>Вход пользователя</h2>
         <form action="save.php?action=login" method="POST">
             <div class="form-group">
                 <label for="login">Логин:</label>
                 <div class="textInputWrapper">
-                    <input type="text" id="login" name="login" placeholder="Введите логин" class="textInput">
+                    <input type="text" id="login" name="login" placeholder="Введите логин" required class="textInput">
                 </div>
             </div>
             
             <div class="form-group">
                 <label for="password">Пароль:</label>
                 <div class="textInputWrapper">
-                    <input type="password" id="password" name="password" placeholder="Введите пароль" class="textInput">
+                    <input type="password" id="password" name="password" placeholder="Введите пароль" required class="textInput">
                 </div>
-            </div>
-            
-            <div class="form-group radio-group">
-                <label>Войти как:</label>
-                <div class="radio-wrapper">
-                    <input type="radio" id="role_user" name="role" value="user" checked>
-                    <label for="role_user">Пользователь</label>
-                    <input type="radio" id="role_admin" name="role" value="admin">
-                    <label for="role_admin">Администратор</label>
-                </div>
-                <?php if (isset($errors['role'])): ?>
-                    <span class="error"><?=$errors['role']?></span>
-                <?php endif; ?>
             </div>
             
             <button type="submit"><span>Войти</span></button>
@@ -217,7 +200,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="fio">ФИО:</label>
                 <div class="textInputWrapper">
                     <input type="text" id="fio" name="fio" placeholder="Введите ФИО" value="<?= htmlspecialchars($values['fio'] ?? '') ?>"
-                           class="textInput <?= isset($errors['fio']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['fio']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['fio'])): ?>
                     <span class="error"><?=$errors['fio']?></span>
@@ -228,7 +211,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="phone">Телефон:</label>
                 <div class="textInputWrapper">
                     <input type="tel" id="phone" name="phone" placeholder="Введите телефон" value="<?= htmlspecialchars($values['phone'] ?? '') ?>"
-                           class="textInput <?= isset($errors['phone']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['phone']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['phone'])): ?>
                     <span class="error"><?=$errors['phone']?></span>
@@ -237,9 +220,9 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="form-group">
                 <label for="email">E-mail:</label>
-                <div class="textInputWrapper">
+                < shallower class="textInputWrapper">
                     <input type="email" id="email" name="email" placeholder="Введите email" value="<?= htmlspecialchars($values['email'] ?? '') ?>"
-                           class="textInput <?= isset($errors['email']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['email']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['email'])): ?>
                     <span class="error"><?=$errors['email']?></span>
@@ -250,7 +233,7 @@ if (isset($_SESSION['user_id'])) {
                 <label for="birthdate">Дата рождения:</label>
                 <div class="textInputWrapper">
                     <input type="date" id="birthdate" name="birthdate" value="<?= htmlspecialchars($values['birthdate'] ?? '') ?>"
-                           class="textInput <?= isset($errors['birthdate']) ? 'error-field' : '' ?>">
+                           class="textInput <?= isset($errors['birthdate']) ? 'error-field' : '' ?>" required>
                 </div>
                 <?php if (isset($errors['birthdate'])): ?>
                     <span class="error"><?=$errors['birthdate']?></span>
@@ -260,7 +243,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group radio-group">
                 <label>Пол:</label>
                 <div class="radio-wrapper">
-                    <input type="radio" id="male" name="gender" value="male" <?= ($values['gender'] ?? '') === 'male' ? 'checked' : '' ?>>
+                    <input type="radio" id="male" name="gender" value="male" <?= ($values['gender'] ?? '') === 'male' ? 'checked' : '' ?> required>
                     <label for="male">Мужской</label>
                     <input type="radio" id="female" name="gender" value="female" <?= ($values['gender'] ?? '') === 'female' ? 'checked' : '' ?>>
                     <label for="female">Женский</label>
@@ -272,7 +255,7 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="form-group">
                 <label for="languages">Любимый язык программирования:</label>
-                <select id="languages" name="languages[]" multiple class="<?= isset($errors['languages']) ? 'error-field' : '' ?>">
+                <select id="languages" name="languages[]" multiple class="<?= isset($errors['languages']) ? 'error-field' : '' ?>" required>
                     <?php
                     $langs = ['Pascal', 'C', 'C++', 'JavaScript', 'PHP', 'Python', 'Java', 'Haskell', 'Clojure', 'Prolog', 'Scala', 'Go'];
                     foreach ($langs as $lang) {
@@ -289,7 +272,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group">
                 <label for="bio">Биография:</label>
                 <div class="textInputWrapper">
-                    <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="textInput <?= isset($errors['bio']) ? 'error-field' : '' ?>"><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
+                    <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="textInput <?= isset($errors['bio']) ? 'error-field' : '' ?>" required><?= htmlspecialchars($values['bio'] ?? '') ?></textarea>
                 </div>
                 <?php if (isset($errors['bio'])): ?>
                     <span class="error"><?=$errors['bio']?></span>
@@ -299,7 +282,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="form-group checkbox-group">
                 <label class="checkbox-label">С контрактом ознакомлен(а)</label>
                 <div class="custom-checkbox">
-                    <input type="checkbox" id="contract" name="contract" value="yes" <?= ($values['contract'] ?? '') === 'yes' ? 'checked' : '' ?>>
+                    <input type="checkbox" id="contract" name="contract" value="yes" <?= ($values['contract'] ?? '') === 'yes' ? 'checked' : '' ?> required>
                     <span class="checkmark"></span>
                 </div>
                 <?php if (isset($errors['contract'])): ?>

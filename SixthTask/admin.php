@@ -12,13 +12,27 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Проверка авторизации администратора
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: index.php');
-    exit;
+// HTTP-авторизация
+if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
+    header('HTTP/1.1 401 Unauthorized');
+    header('WWW-Authenticate: Basic realm="Admin Panel"');
+    print('<h1>401 Требуется авторизация</h1>');
+    exit();
 }
 
-// Действия по управлению
+// Проверка логина и пароля администратора
+$stmt = $pdo->prepare("SELECT password_hash FROM admins WHERE login = ?");
+$stmt->execute([$_SERVER['PHP_AUTH_USER']]);
+$admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$admin || !password_verify($_SERVER['PHP_AUTH_PW'], $admin['password_hash'])) {
+    header('HTTP/1.1 401 Unauthorized');
+    header('WWW-Authenticate: Basic realm="Admin Panel"');
+    print('<h1>401 Неверный логин или пароль</h1>');
+    exit();
+}
+
+// Handle actions
 $action = $_GET['action'] ?? '';
 $user_id = $_GET['id'] ?? null;
 
@@ -40,37 +54,30 @@ if ($action === 'edit' && $user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $values = $_POST;
     $errors = [];
 
-    // Валидация
+    // Validation
     if (!preg_match("/^[а-яА-Яa-zA-Z\s]{1,150}$/u", trim($values['fio'] ?? ''))) {
-        $errors['fio'] = "Допустимы только буквы и пробелы, длина до 150 символов";
+        $errors['fio'] = "Только буквы и пробелы, до 150 символов";
     }
-
     if (!preg_match("/^(\+7|8)\d{10}$/", trim($values['phone'] ?? ''))) {
-        $errors['phone'] = "Допустимы форматы: +7XXXXXXXXXX или 8XXXXXXXXXX";
+        $errors['phone'] = "Формат: +7XXXXXXXXXX или 8XXXXXXXXXX";
     }
-
     if (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", trim($values['email'] ?? ''))) {
-        $errors['email'] = "Допустимы латинские буквы, цифры, ._%+- и корректный домен";
+        $errors['email'] = "Неверный формат email";
     }
-
     if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $values['birthdate'] ?? '') || strtotime($values['birthdate']) > time()) {
-        $errors['birthdate'] = "Допустим формат ГГГГ-ММ-ДД, дата не позже текущей";
+        $errors['birthdate'] = "Формат: ГГГГ-ММ-ДД, не позже текущей даты";
     }
-
     if (!in_array($values['gender'] ?? '', ['male', 'female'])) {
-        $errors['gender'] = "Допустимы только значения: мужской или женский";
+        $errors['gender'] = "Выберите мужской или женский";
     }
-
     $valid_languages = ['Pascal', 'C', 'C++', 'JavaScript', 'PHP', 'Python', 'Java', 'Haskell', 'Clojure', 'Prolog', 'Scala', 'Go'];
     $languages = $values['languages'] ?? [];
     if (empty($languages) || count(array_diff($languages, $valid_languages)) > 0) {
-        $errors['languages'] = "Допустимы только языки из списка, выберите хотя бы один";
+        $errors['languages'] = "Выберите хотя бы один язык из списка";
     }
-
     if (!preg_match("/^[\s\S]{1,1000}$/", trim($values['bio'] ?? ''))) {
-        $errors['bio'] = "Допустимы любые символы, длина до 1000 символов";
+        $errors['bio'] = "До 1000 символов";
     }
-
     if (!isset($values['contract']) || $values['contract'] !== 'yes') {
         $errors['contract'] = "Необходимо согласиться с контрактом";
     }
@@ -105,7 +112,7 @@ if ($action === 'edit' && $user_id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Получение всех пользователей
+// Fetch all users
 $users = $pdo->query("SELECT * FROM users")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($users as &$user) {
     $stmt = $pdo->prepare("SELECT pl.name FROM user_languages ul JOIN programming_languages pl ON ul.language_id = pl.id WHERE ul.user_id = ?");
@@ -113,13 +120,13 @@ foreach ($users as &$user) {
     $user['languages'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
-// Получение статистики
+// Fetch statistics
 $stats = $pdo->query("SELECT pl.name, COUNT(ul.user_id) as count 
                       FROM programming_languages pl 
                       LEFT JOIN user_languages ul ON pl.id = ul.language_id 
                       GROUP BY pl.id, pl.name")->fetchAll(PDO::FETCH_ASSOC);
 
-// Получение данных пользователя для редактирования
+// Fetch user data for editing
 $edit_user = null;
 $edit_languages = [];
 if ($action === 'edit' && $user_id) {
@@ -142,32 +149,31 @@ unset($_SESSION['form_values']);
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title>Панель администратора</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>Панель администратора</h1>
-    <p><a href="save.php?action=logout">Выйти</a></p>
 
     <?php if (isset($_GET['success'])): ?>
         <div class="success-box">
-            <?= $_GET['success'] === 'deleted' ? 'User deleted successfully!' : 'User updated successfully!' ?>
+            <?= $_GET['success'] === 'deleted' ? 'Пользователь удалён!' : 'Данные обновлены!' ?>
         </div>
     <?php endif; ?>
 
-    <h2>User Data</h2>
+    <h2>Данные пользователей</h2>
     <table border="1" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
             <th>ID</th>
-            <th>FIO</th>
-            <th>Phone</th>
+            <th>ФИО</th>
+            <th>Телефон</th>
             <th>Email</th>
-            <th>Birthdate</th>
-            <th>Gender</th>
-            <th>Languages</th>
-            <th>Bio</th>
-            <th>Actions</th>
+            <th>Дата рождения</th>
+            <th>Пол</th>
+            <th>Языки</th>
+            <th>Биография</th>
+            <th>Действия</th>
         </tr>
         <?php foreach ($users as $user): ?>
             <tr>
@@ -180,18 +186,18 @@ unset($_SESSION['form_values']);
                 <td><?= htmlspecialchars(implode(', ', $user['languages'])) ?></td>
                 <td><?= htmlspecialchars(substr($user['bio'], 0, 50)) . (strlen($user['bio']) > 50 ? '...' : '') ?></td>
                 <td>
-                    <a href="admin.php?action=edit&id=<?= $user['id'] ?>">Edit</a> |
-                    <a href="admin.php?action=delete&id=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')">Delete</a>
+                    <a href="admin.php?action=edit&id=<?= $user['id'] ?>">Редактировать</a> |
+                    <a href="admin.php?action=delete&id=<?= $user['id'] ?>" onclick="return confirm('Вы уверены?')">Удалить</a>
                 </td>
             </tr>
         <?php endforeach; ?>
     </table>
 
-    <h2>Programming Language Statistics</h2>
+    <h2>Статистика по языкам программирования</h2>
     <table border="1" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <tr>
-            <th>Language</th>
-            <th>User Count</th>
+            <th>Язык</th>
+            <th>Количество пользователей</th>
         </tr>
         <?php foreach ($stats as $stat): ?>
             <tr>
@@ -202,11 +208,11 @@ unset($_SESSION['form_values']);
     </table>
 
     <?php if ($action === 'edit' && $edit_user): ?>
-        <h2>Edit User #<?= $edit_user['id'] ?></h2>
+        <h2>Редактирование пользователя #<?= $edit_user['id'] ?></h2>
         <?php if (!empty($errors)): ?>
             <div class="error-box">
                 <?php foreach ($errors as $field => $message): ?>
-                    <p>Error in '<?=$field?>': <?= htmlspecialchars($message) ?></p>
+                    <p>Ошибка в '<?=$field?>': <?= htmlspecialchars($message) ?></p>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -305,7 +311,7 @@ unset($_SESSION['form_values']);
                 <?php endif; ?>
             </div>
 
-            <button type="submit"><span>Save</span></button>
+            <button type="submit"><span>Сохранить</span></button>
         </form>
     <?php endif; ?>
 </body>

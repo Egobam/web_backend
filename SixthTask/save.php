@@ -25,37 +25,18 @@ if ($action === 'login') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $login = trim($_POST['login'] ?? '');
         $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? '';
-
-        if (!in_array($role, ['user', 'admin'])) {
-            $errors['role'] = 'Выберите корректную роль';
+        
+        $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE login = ?");
+        $stmt->execute([$login]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && password_verify($password, $user['password_hash'])) {
+            $_SESSION['user_id'] = $user['id'];
+            unset($_SESSION['credentials']);
+            header('Location: index.php');
+            exit;
         } else {
-            if ($role === 'user') {
-                $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE login = ?");
-                $stmt->execute([$login]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($user && password_verify($password, $user['password_hash'])) {
-                    $_SESSION['user_id'] = $user['id'];
-                    unset($_SESSION['credentials']);
-                    header('Location: index.php');
-                    exit;
-                } else {
-                    $errors['auth'] = 'Неверный логин или пароль пользователя';
-                }
-            } elseif ($role === 'admin') {
-                $stmt = $pdo->prepare("SELECT id, password_hash FROM admins WHERE login = ?");
-                $stmt->execute([$login]);
-                $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($admin && password_verify($password, $admin['password_hash'])) {
-                    $_SESSION['admin_id'] = $admin['id'];
-                    header('Location: index.php');
-                    exit;
-                } else {
-                    $errors['auth'] = 'Неверный логин или пароль администратора';
-                }
-            }
+            $errors['auth'] = 'Неверный логин или пароль';
         }
     }
 } elseif ($action === 'register') {
