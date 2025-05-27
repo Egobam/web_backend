@@ -79,8 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Валидация согласия с контрактом
-    if (!isset($data['check']) || $data['check'] !== 'yes') {
-        $errors['check'] = "Необходимо согласиться с контрактом";
+    if (empty($check)) {
+        $response['errors']['check'] = 'Не ознакомлены с контрактом';
+        $error = true;
     }
 
     if (!empty($errors)) {
