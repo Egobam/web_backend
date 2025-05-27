@@ -22,7 +22,8 @@ $config = [
 $response = [
     'success' => false,
     'message' => '',
-    'info' => '',
+    'login' => '',
+    'password' => '',
     'errors' => [],
     'values' => []
 ];
@@ -285,15 +286,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt1->execute([$fid, $row['id']]);
             }
 
-            $response['info'] = sprintf(
-                'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong><br>и паролем <strong>%s</strong> для изменения данных.',
-                htmlspecialchars($login),
-                htmlspecialchars($pass)
-            );
+            $response['success'] = true;
+            $response['message'] = 'Форма обратной связи: Спасибо, результаты сохранены.';
+            $response['login'] = $login;
+            $response['password'] = $pass;
         }
 
-        $response['success'] = true;
-        $response['message'] = 'Спасибо, результаты сохранены.';
         $db->commit();
     } catch (PDOException $e) {
         $db->rollBack();
