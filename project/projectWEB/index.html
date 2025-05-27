@@ -841,28 +841,44 @@
                 </div>
             </div>
 
-            <form action="https://formcarry.com/s/9yGRN8URtnu" method="post" id="form_send">
+            <form action="/api/register" method="post" id="form_send">
                 <h4 id="status"></h4>
                 <div>
-                    <input type="text" name="name" id="name" class="form_input" placeholder="Ваше имя">
+                    <input type="text" name="fio" id="fio" class="form_input" placeholder="Ваше имя">
                 </div>
                 <div>
                     <input type="tel" name="phone" id="phone" class="form_input" placeholder="Телефон">
                 </div>
                 <div>
-                    <input type="email" name="email" id="email" class="form_input" placeholder="E-mail">
+                    <input type="email" name="email" id="email" class="form_input" placeholder="E-mail" required>
                 </div>
                 <div>
-                    <textarea name="message" id="message" class="form_input" placeholder="Ваш комментарий"></textarea>
+                    <input type="date" name="birthdate" id="birthdate" class="form_input" required>
+                </div>
+                <div>
+                    <label>Пол:</label>
+                    <label><input type="radio" name="gender" value="male" required> Мужской</label>
+                    <label><input type="radio" name="gender" value="female"> Женский</label>
+                </div>
+                <div>
+                    <textarea name="bio" id="bio" class="form_input" placeholder="Ваш комментарий"></textarea>
+                </div>
+                <div>
+                    <label>Языки программирования:</label>
+                    <select name="languages[]" id="languages" multiple required>
+                        <!-- Заполняется динамически или статически -->
+                        <option value="1">PHP</option>
+                        <option value="2">JavaScript</option>
+                        <option value="3">Python</option>
+                    </select>
                 </div>
                 <div>
                     <label>
-                        <input type="checkbox" name="oznakomlen" id="oznakomlen">
+                        <input type="checkbox" name="contract" id="contract" required>
                         <div></div>
                         <span>Отправляя заявку, я даю согласие на <a href="">обработку своих персональных данных</a></span>
                     </label>
                 </div>
-                <div data-theme="dark" class="g-recaptcha" data-sitekey="6LdwsJ0qAAAAAItD8VRjmzdSxWWNJp2KI1Ea2LXm"></div>
                 <button id="send" class="btn_send button_select" type="submit">СВЯЖИТЕСЬ С НАМИ</button>
             </form>
         </div>

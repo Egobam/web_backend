@@ -1,11 +1,102 @@
 window.onload = function () {
-    //burger
+    // Обработка формы
+    const form = document.getElementById('form_send');
+    const status = document.getElementById('status');
+
+    // Клиентская валидация
+    function validateForm(data) {
+        const errors = [];
+        if (!data.fio || data.fio.length < 2) {
+            errors.push('Имя должно содержать минимум 2 символа');
+        }
+        if (!data.phone || !/^\+?[0-9]{10,15}$/.test(data.phone)) {
+            errors.push('Некорректный номер телефона');
+        }
+        if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            errors.push('Некорректный email');
+        }
+        if (!data.birthdate || !/^\d{4}-\d{2}-\d{2}$/.test(data.birthdate)) {
+            errors.push('Некорректная дата рождения (формат: ГГГГ-ММ-ДД)');
+        }
+        if (!data.gender || !['male', 'female'].includes(data.gender)) {
+            errors.push('Выберите пол');
+        }
+        if (!data.contract) {
+            errors.push('Необходимо согласие на обработку персональных данных');
+        }
+        if (!data.languages || data.languages.length === 0) {
+            errors.push('Выберите хотя бы один язык программирования');
+        }
+        return errors;
+    }
+
+    // Отображение ошибок
+    function showErrors(errors) {
+        status.innerHTML = errors.map(error => `<p style="color: red;">${error}</p>`).join('');
+    }
+
+    // Отображение успешного результата
+    function showSuccess(data) {
+        status.innerHTML = `
+            <p style="color: green;">Регистрация успешна!</p>
+            <p>Логин: ${data.login}</p>
+            <p>Пароль: ${data.password}</p>
+            <p>Профиль: <a href="${data.profile_url}">${data.profile_url}</a></p>
+        `;
+    }
+
+    // Обработка отправки формы
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const languages = Array.from(document.getElementById('languages').selectedOptions).map(option => option.value);
+            const formData = {
+                fio: document.getElementById('fio').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                birthdate: document.getElementById('birthdate').value,
+                gender: document.querySelector('input[name="gender"]:checked')?.value,
+                bio: document.getElementById('bio').value,
+                contract: document.getElementById('contract').checked,
+                languages: languages
+            };
+
+            // Клиентская валидация
+            const errors = validateForm(formData);
+            if (errors.length > 0) {
+                showErrors(errors);
+                return;
+            }
+
+            // Отправка через Fetch
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json().then(data => ({ status: response.status, data })))
+            .then(({ status, data }) => {
+                if (status >= 400) {
+                    showErrors(data.errors || [data.error]);
+                } else {
+                    showSuccess(data);
+                }
+            })
+            .catch(error => {
+                showErrors(['Ошибка соединения с сервером']);
+            });
+        });
+    }
+
+    // Бургер-меню
     $('.burger_menu').on('click', function(){
         $('body').toggleClass('menu_active');
     });
 
-    // for partners
-    // сликер для двух полосок картинок, причем они не должны листаться синхронно + они листаются автоматически
+    // Слайдер для партнеров
     let setTimer;
     const partners = document.querySelector('.autoplay').innerHTML;
     let start = false;
@@ -50,20 +141,16 @@ window.onload = function () {
         clearTimeout(setTimer);
         setTimer = setTimeout(() => { slicker(); }, 500);
     });
-  //
 
-    // for tarifs
-    // при наведении блок увеличивается
+    // Тарифы
     $('.tarif_category:not(.active)').hover(function () {
       $('.tarif_category.active').removeClass('active');
     });
     $( ".tarif_category:not(.active)").on( "mouseleave", function() {
       $('.tarif_category:eq(1)').addClass('active');
-    } );
-  //
+    });
 
-    // for reviews
-    // для того чтобы какие-то отзывы показывались а какие-то нет + для подсчета там при пролистывании
+    // Отзывы
     $(".a").css('height', $('.aa > div:eq(0)').height());
     function aa(p){
         console.log(p)
@@ -81,24 +168,22 @@ window.onload = function () {
         $('.ednum').html((p+1).toString().padStart(2, '0'))
     }
   
-    // для листалки
-    p = 0, pl = $('.aa > div').length - 1;
+    // Листалка для отзывов
+    let p = 0, pl = $('.aa > div').length - 1;
     $('.b1').on('click', function(){
         if(p == 0) p = pl;
         else p--;
         aa(p);
     });
     $('.b2').on('click', function(){
-  
         if(p == pl) p = 0;
         else p++;
         aa(p);
     });
-  //
 
-    // for FAQ
+    // FAQ
     $('#AskList > div').on('click', function(){
         $('#AskList > div').removeClass('active');
         $(this).addClass('active');
     });
-  };
+};
