@@ -896,7 +896,7 @@ if (!empty($_SESSION['login']) && !empty($_SESSION['user_id'])) {
                   </div>
                 </div>
                
-                 <form action="" method="post" class="form">
+                <form id="myForm" method="post" action="login.php">
 	<?php if($log && isset($_SESSION['form_id'])): ?>
         <input type="hidden" name="form_id" value="<?php echo $_SESSION['form_id']; ?>">
     <?php endif; ?>
