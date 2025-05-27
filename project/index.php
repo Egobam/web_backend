@@ -1,3 +1,4 @@
+```php
 <?php
 header('Content-Type: application/json; charset=utf-8');
 ob_start(); // Буферизация вывода для предотвращения случайного HTML
@@ -128,6 +129,9 @@ function validateForm($data, $db, &$response, &$error) {
 
     // Языки программирования
     $language = $data['language'] ?? [];
+    if (!is_array($language) && is_string($language)) {
+        $language = array_map('trim', explode(',', $language));
+    }
     if (empty($language)) {
         $response['errors']['language'] = $messages['language_empty'];
         $error = true;
@@ -208,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'email' => $_POST['email'] ?? '',
         'date' => $_POST['date'] ?? '',
         'radio' => $_POST['radio'] ?? '',
-        'language' => isset($_POST['language']) ? (array)$_POST['language'] : [], // Приведение к массиву
+        'language' => $_POST['language'] ?? [], // Обрабатываем как строку или массив
         'bio' => $_POST['bio'] ?? '',
         'check' => $_POST['check'] ?? ''
     ];
