@@ -1,7 +1,10 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+ob_start(); // Буферизация вывода для предотвращения случайного HTML
 
-// Конфигурация базы данных (рекомендуется вынести в config.php)
+session_start();
+
+// Конфигурация базы данных
 $config = [
     'db' => [
         'host' => 'localhost',
@@ -15,20 +18,6 @@ $config = [
     ]
 ];
 
-try {
-    $db = new PDO(
-        "mysql:host={$config['db']['host']};dbname={$config['db']['dbname']};charset=utf8",
-        $config['db']['user'],
-        $config['db']['pass'],
-        $config['db']['options']
-    );
-} catch (PDOException $e) {
-    error_log('Database connection error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
-    exit(json_encode(['success' => false, 'errors' => ['database' => 'Ошибка подключения к базе данных']]));
-}
-
-session_start();
-
 // Инициализация ответа
 $response = [
     'success' => false,
@@ -38,8 +27,20 @@ $response = [
     'values' => []
 ];
 
-$error = false;
-$log = !empty($_SESSION['login']);
+try {
+    $db = new PDO(
+        "mysql:host={$config['db']['host']};dbname={$config['db']['dbname']};charset=utf8",
+        $config['db']['user'],
+        $config['db']['pass'],
+        $config['db']['options']
+    );
+} catch (PDOException $e) {
+    error_log('Database connection error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
+    $response['errors']['database'] = 'Ошибка подключения к базе данных';
+    ob_end_clean();
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // Функция валидации формы
 function validateForm($data, $db, &$response, &$error) {
@@ -63,12 +64,23 @@ function validateForm($data, $db, &$response, &$error) {
 
     // Кэширование списка языков
     $cacheFile = 'languages_cache.php';
+    $valid_languages = [];
     if (file_exists($cacheFile)) {
         $valid_languages = include $cacheFile;
-    } else {
-        $dbLangs = $db->query("SELECT name FROM all_languages")->fetchAll(PDO::FETCH_COLUMN);
-        file_put_contents($cacheFile, '<?php return ' . var_export($dbLangs, true) . ';');
-        $valid_languages = $dbLangs;
+        if (!is_array($valid_languages)) {
+            $valid_languages = [];
+            error_log('Invalid cache file: ' . $cacheFile . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
+        }
+    }
+    if (empty($valid_languages)) {
+        try {
+            $dbLangs = $db->query("SELECT name FROM all_languages")->fetchAll(PDO::FETCH_COLUMN);
+            file_put_contents($cacheFile, '<?php return ' . var_export($dbLangs, true) . ';');
+            $valid_languages = $dbLangs;
+        } catch (PDOException $e) {
+            $response['errors']['database'] = 'Ошибка загрузки языков: ' . $e->getMessage();
+            $error = true;
+        }
     }
 
     // ФИО
@@ -154,6 +166,7 @@ function validateForm($data, $db, &$response, &$error) {
     }
 
     // Согласие с контрактом
+    error_log('Check value: ' . print_r($data['check'], true)); // Отладка значения check
     if (empty($data['check']) || $data['check'] !== 'on') {
         $response['errors']['check'] = $messages['check_invalid'];
         $error = true;
@@ -172,6 +185,9 @@ function validateForm($data, $db, &$response, &$error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Отладка входных данных
+    error_log('POST data: ' . print_r($_POST, true));
+
     // Обработка выхода из системы
     if (isset($_POST['logout_form'])) {
         session_destroy();
@@ -179,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         setcookie('pass', '', time() - 3600);
         $response['success'] = true;
         $response['message'] = 'Вы успешно вышли';
+        ob_end_clean();
         echo json_encode($response, JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -190,16 +207,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'email' => $_POST['email'] ?? '',
         'date' => $_POST['date'] ?? '',
         'radio' => $_POST['radio'] ?? '',
-        'language' => isset($_POST['language']) ? explode(',', $_POST['language']) : [],
+        'language' => isset($_POST['language']) ? (array)$_POST['language'] : [], // Приведение к массиву
         'bio' => $_POST['bio'] ?? '',
         'check' => $_POST['check'] ?? ''
     ];
+
+    $error = false;
+    $log = !empty($_SESSION['login']);
 
     // Валидация формы
     $response['values'] = validateForm($data, $db, $response, $error);
 
     // Если есть ошибки, возвращаем их
     if ($error) {
+        ob_end_clean();
         echo json_encode($response, JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -209,7 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $db->beginTransaction();
 
         if ($log) {
-            // Обновление данных авторизованного пользователя
             $form_id = $_POST['form_id'] ?? $_SESSION['form_id'] ?? null;
             
             if (!$form_id) {
@@ -248,7 +268,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $response['success'] = true;
             $response['message'] = 'Данные успешно обновлены';
         } else {
-            // Создание нового пользователя
             $login = uniqid();
             $pass = uniqid();
             $mpass = password_hash($pass, PASSWORD_BCRYPT);
@@ -286,7 +305,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         error_log('Update error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
     }
     
+    ob_end_clean();
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+ob_end_clean();
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+exit;
 ?>
