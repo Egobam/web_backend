@@ -1,0 +1,115 @@
+/* Page background & centering */
+body {
+    margin: 0;
+    background: #040613;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: Montserrat, sans-serif;
+    color: #e0effd;
+}
+  
+/* Container for both forms */
+.page-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 20px;
+width: 100%;
+max-width: 400px;
+padding: 20px;
+}
+
+/* Shared form styles */
+.login-form,
+.register-form {
+width: 100%;
+background: #264d8f;
+border: 1px solid #ffffff;
+border-radius: 10px;
+padding: 20px;
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+
+/* Title */
+.form-title {
+margin: 0;
+color: #ffffff;
+font-size: 1.8em;
+text-align: center;
+}
+
+/* Form group (label + input) */
+.form-group {
+display: flex;
+flex-direction: column;
+gap: 5px;
+}
+
+/* Labels */
+.form-label {
+color: #ffffff;
+font-size: 0.95em;
+}
+
+/* Inputs and selects */
+.form-input {
+padding: 8px;
+border: 1px solid #aed7fd;
+border-radius: 5px;
+background: transparent;
+color: #ffffff;
+font-size: 1em;
+}
+
+.form-input:focus {
+outline: none;
+border-color: #dbecfc;
+}
+
+/* Error message */
+.error-message {
+background: #f87a7a;
+color: #721c24;
+border: 1px solid #ef4757;
+padding: 10px;
+border-radius: 5px;
+text-align: center;
+font-size: 1em;
+}
+
+/* Actions wrapper */
+.form-actions {
+display: flex;
+justify-content: center;
+margin-top: 10px;
+}
+
+/* Buttons */
+.buttons {
+font-family: Montserrat, sans-serif;
+background: #f14d34;
+color: #ffffff;
+border: none;
+border-radius: 5px;
+padding: 12px 20px;
+font-size: 1em;
+cursor: pointer;
+transition: background 0.25s ease;
+}
+
+.buttons:hover {
+background: #d13f2e;
+}
+
+/* Prompt in register form */
+.register-prompt {
+margin: 0;
+text-align: center;
+color: #e0effd;
+font-size: 1em;
+}
