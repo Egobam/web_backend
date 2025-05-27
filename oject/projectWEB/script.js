@@ -88,7 +88,7 @@ window.onload = function () {
             .catch(error => {
                 showErrors(['Ошибка соединения с сервером']);
             });
-        });
+        });Ы
     }
 
     // Бургер-меню
