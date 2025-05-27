@@ -830,58 +830,70 @@
 
     <!-- 12. FORM -->
     <footer id="form">
-        <div class="container">
-            <div class="form_contacts">
-                <h1>Оставить заявку на<br> поддержку сайта</h1>
-                <h2>Срочно нужна поддержка сайта? Ваша команда не успевает справиться самостоятельно или предыдущий подрядчик не справился с работой? Тогда вам точно к нам! Просто оставьте заявку и наш менеджер с вами свяжется!</h2>
-
-                <div class="form_contact">
-                    <div class="form_phone"><a href="tel:+78002222673">8 800 222-26-73</a></div>
-                    <div class="form_mail"><a href="mailto:info@drupal-coder.ru">info@drupal-coder.ru</a></div>
+        <section id="form">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="title">Свяжитесь с нами</h2>
+                        <form action="/api/register" method="post" id="form_send">
+                            <div id="status"></div>
+                            <div class="form-group">
+                                <label for="fio">ФИО:</label>
+                                <input type="text" id="fio" name="fio" placeholder="Введите ФИО" class="form_input">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Телефон:</label>
+                                <input type="tel" id="phone" name="phone" placeholder="Введите телефон" class="form_input">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail:</label>
+                                <input type="email" id="email" name="email" placeholder="Введите email" class="form_input">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthdate">Дата рождения:</label>
+                                <input type="date" id="birthdate" name="birthdate" class="form_input">
+                            </div>
+                            <div class="form-group radio-group">
+                                <label>Пол:</label>
+                                <div class="radio-wrapper">
+                                    <label><input type="radio" name="gender" value="male"> Мужской</label>
+                                    <label><input type="radio" name="gender" value="female"> Женский</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="languages">Любимый язык программирования:</label>
+                                <select id="languages" name="languages[]" multiple class="form_input">
+                                    <!-- Значения должны совпадать с теми, что в таблице programming_languages -->
+                                    <option value="1">Pascal</option>
+                                    <option value="2">C</option>
+                                    <option value="3">C++</option>
+                                    <option value="4">JavaScript</option>
+                                    <option value="5">PHP</option>
+                                    <option value="6">Python</option>
+                                    <option value="7">Java</option>
+                                    <option value="8">Haskell</option>
+                                    <option value="9">Clojure</option>
+                                    <option value="10">Prolog</option>
+                                    <option value="11">Scala</option>
+                                    <option value="12">Go</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bio">Биография:</label>
+                                <textarea id="bio" name="bio" rows="5" placeholder="Введите биографию" class="form_input"></textarea>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="contract" name="contract" value="yes">
+                                    <span>Отправляя заявку, я даю согласие на <a href="">обработку своих персональных данных</a></span>
+                                </label>
+                            </div>
+                            <button type="submit" id="send" class="btn_send button_select">СВЯЖИТЕСЬ С НАМИ</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-
-            <form action="/api/register" method="post" id="form_send">
-                <h4 id="status"></h4>
-                <div>
-                    <input type="text" name="fio" id="fio" class="form_input" placeholder="Ваше имя">
-                </div>
-                <div>
-                    <input type="tel" name="phone" id="phone" class="form_input" placeholder="Телефон">
-                </div>
-                <div>
-                    <input type="email" name="email" id="email" class="form_input" placeholder="E-mail" required>
-                </div>
-                <div>
-                    <input type="date" name="birthdate" id="birthdate" class="form_input" required>
-                </div>
-                <div>
-                    <label>Пол:</label>
-                    <label><input type="radio" name="gender" value="male" required> Мужской</label>
-                    <label><input type="radio" name="gender" value="female"> Женский</label>
-                </div>
-                <div>
-                    <textarea name="bio" id="bio" class="form_input" placeholder="Ваш комментарий"></textarea>
-                </div>
-                <div>
-                    <label>Языки программирования:</label>
-                    <select name="languages[]" id="languages" multiple required>
-                        <!-- Заполняется динамически или статически -->
-                        <option value="1">PHP</option>
-                        <option value="2">JavaScript</option>
-                        <option value="3">Python</option>
-                    </select>
-                </div>
-                <div>
-                    <label>
-                        <input type="checkbox" name="contract" id="contract" required>
-                        <div></div>
-                        <span>Отправляя заявку, я даю согласие на <a href="">обработку своих персональных данных</a></span>
-                    </label>
-                </div>
-                <button id="send" class="btn_send button_select" type="submit">СВЯЖИТЕСЬ С НАМИ</button>
-            </form>
-        </div>
+        </section>
 
         <!-- 13. FOOTER  -->
         <div class="razdel"></div>
