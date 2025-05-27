@@ -1,3 +1,4 @@
+```php
 <?php
 header('Content-Type: text/html; charset=UTF-8');
 session_start();
@@ -8,7 +9,7 @@ if (!empty($_SESSION['login'])) {
     exit;
 }
 
-// Конфигурация базы данных (рекомендуется вынести в config.php)
+// Конфигурация базы данных
 $config = [
     'db' => [
         'host' => 'localhost',
@@ -34,7 +35,7 @@ try {
     die('Ошибка подключения к базе данных');
 }
 
-// Функция проверки CSRF-токена
+// Функция для CSRF-токена
 function generateCsrfToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -49,14 +50,12 @@ function validateCsrfToken($token) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Проверка CSRF-токена
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $error = 'Недействительный CSRF-токен';
     } else {
         $login = trim($_POST['login'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        // Валидация ввода
         if (empty($login)) {
             $error = 'Введите логин';
         } elseif (empty($password)) {
@@ -71,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $_SESSION['login'] = $login;
                     $_SESSION['user_id'] = $user_data['id'];
                     $_SESSION['role'] = $user_data['role'];
-                    unset($_SESSION['csrf_token']); // Очистка токена после успешной авторизации
+                    unset($_SESSION['csrf_token']);
 
                     if ($user_data['role'] === 'admin') {
                         header('Location: admin.php');
@@ -141,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Клиентская валидация и обработка формы
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const form = this;
@@ -152,8 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             const password = document.getElementById('password');
             const loginError = document.getElementById('loginError');
             const passwordError = document.getElementById('passwordError');
+            const formError = document.querySelector('.error-message');
 
             // Сброс ошибок
+            formError.textContent = '';
             loginError.textContent = '';
             passwordError.textContent = '';
             login.classList.remove('is-invalid');
@@ -179,25 +180,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 fetch('', { method: 'POST', body: formData })
                     .then(response => response.text())
                     .then(data => {
-                        // Форма перенаправит автоматически, если успех
                         submitBtn.disabled = false;
                         spinner.style.display = 'none';
                         try {
-                            const json = JSON.parse(data); // Проверяем, если сервер вернул JSON (ошибка)
-                            if (json.error) {
-                                document.querySelector('.error-message').textContent = json.error;
-                            }
+                            const json = JSON.parse(data);
+                            formError.textContent = json.error || 'Произошла ошибка';
                         } catch (e) {
-                            // Если не JSON, то редирект уже произошёл
+                            // Редирект уже произошёл
                         }
                     })
                     .catch(() => {
                         submitBtn.disabled = false;
                         spinner.style.display = 'none';
-                        document.querySelector('.error-message').textContent = 'Произошла ошибка при отправке';
+                        formError.textContent = 'Произошла ошибка при отправке';
                     });
             }
         });
     </script>
 </body>
 </html>
+```

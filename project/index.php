@@ -154,7 +154,7 @@ function validateForm($data, $db, &$response, &$error) {
     }
 
     // Согласие с контрактом
-    if (empty($data['check']) || $data['check'] !== 'yes') {
+    if (empty($data['check']) || $data['check'] !== 'on') {
         $response['errors']['check'] = $messages['check_invalid'];
         $error = true;
     }
