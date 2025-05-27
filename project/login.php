@@ -1,89 +1,70 @@
-<?php 
-// Инициализация сессии
+<?php
+header('Content-Type: text/html; charset=UTF-8');
 session_start();
 
-// Подключение к базе данных
-require 'db.php';
+if (!empty($_SESSION['login'])) {
+    header('Location: ./');
+    exit();
+}
 
-$msg = ''; // Сообщение об ошибке (если будет)
+$error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Функция для извлечения JSON-данных из тела запроса
-    function getJsonInput(): ?array {
-        $ct = $_SERVER['CONTENT_TYPE'] ?? '';
-        if (stripos($ct, 'application/json') === 0) {
-            $raw = file_get_contents('php://input');
-            $data = json_decode($raw, true);    
-            return is_array($data) ? $data : null;
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user = 'u68918'; 
+    $pass = '7758388'; 
+    $db = new PDO('mysql:host=localhost;dbname=u68918', $user, $pass,
+    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
+    
+    $login = $_POST['login'];
+    $password = md5($_POST['password']);
+    
+    try {
+        
+        $stmt = $db->prepare("SELECT id, role FROM users WHERE login = ? and password = ?");
+        $stmt->execute([$login, $password]);
+        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user_data) {
+            $_SESSION['login'] = $_POST['login'];
+            $_SESSION['user_id'] = $user_data['id'];
+            $_SESSION['role'] = $user_data['role']; 
+            
+            
+            if ($user_data['role'] === 'admin') {
+                header('Location: admin.php');
+            } else {
+                header('Location: form.php#footer');
+            }
+            exit();
+        } else {
+            $error = 'Неверный логин или пароль';
         }
-        return null;
-    }
-
-    $json = getJsonInput(); // Попытка получить данные из JSON
-    $isAJAX = $json !== null; // Флаг, был ли запрос AJAX
-    $input = $json ?? $_POST; // Использовать JSON или POST-данные
-
-    // Поиск пользователя по логину
-    $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE username = :user");
-    $stmt->execute([':user' => $input['username']]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Проверка пароля и установка сессии
-    if ($user && password_verify($input['password'], $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['id'];
-        setcookie("username", $input['username'], time() + 3600, '/'); // Установка cookie на 1 час
-        header('Location: /project/edit.php'); 
-        exit;
-    } else {
-        $msg = 'Неверный логин или пароль.';
-        // Ответ в формате JSON при AJAX-запросе
-        if ($isAJAX) {
-            echo json_encode([
-                'success' => false,
-                'error' => $msg
-            ]);
-            exit;
-        }
+    } catch (PDOException $e) {
+        print ('Error : ' . $e->getMessage());
+        exit();
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Доступ к редактированию</title>
-    <link rel='stylesheet' href='profileloginstyle.css'>
-    <script defer src="/project/login.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <title>Авторизация</title>
 </head>
-<body>
-  <div class="page-container">
-    <form class="login-form" action="login.php" method="post">
-      <h1 class="form-title">Вход для редактирования</h1>
-      <?php if ($msg): ?>
-        <div class="error-message"><?= htmlspecialchars($msg) ?></div>
-      <?php endif; ?>
-      <div class="form-group">
-        <label for="username" class="form-label">Логин:</label>
-        <input type="text" id="username" name="username" required class="form-input">
-      </div>
-      <div class="form-group">
-        <label for="password" class="form-label">Пароль:</label>
-        <input type="password" id="password" name="password" required class="form-input">
-      </div>
-      <div class="form-actions">
-        <input type="submit" value="Войти" class="buttons submit-button">
-      </div>
-    </form>
 
-    <form class="register-form" action="/project/index.php" method="get">
-      <p class="register-prompt">Еще не зарегистрированы?</p>
-      <div class="form-actions">
-        <input type="submit" value="Зарегистрироваться" class="buttons register-button">
-      </div>
+<body>
+    <form action="" method="post" class="form">
+        <div class="mess" style="color: red;"><?php echo $error; ?></div>
+        <h2>Авторизация</h2>
+        <div> <input class="input" style="width: 100%;" type="text" name="login" placeholder="Логин"> </div>
+        <div> <input class="input" style="width: 100%;" type="password" name="password" placeholder="Пароль"> </div>
+        <button class="button" type="submit">Войти</button>
     </form>
-  </div>
 </body>
 
 </html>
