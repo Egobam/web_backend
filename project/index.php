@@ -1,13 +1,35 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
-$user = 'u68918'; 
-$pass = '7758388'; 
-$db = new PDO('mysql:host=localhost;dbname=u68918', $user, $pass,
-    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+// Конфигурация базы данных (рекомендуется вынести в config.php)
+$config = [
+    'db' => [
+        'host' => 'localhost',
+        'dbname' => 'u68918',
+        'user' => 'u68918',
+        'pass' => '7758388',
+        'options' => [
+            PDO::ATTR_PERSISTENT => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]
+    ]
+];
+
+try {
+    $db = new PDO(
+        "mysql:host={$config['db']['host']};dbname={$config['db']['dbname']};charset=utf8",
+        $config['db']['user'],
+        $config['db']['pass'],
+        $config['db']['options']
+    );
+} catch (PDOException $e) {
+    error_log('Database connection error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
+    exit(json_encode(['success' => false, 'errors' => ['database' => 'Ошибка подключения к базе данных']]));
+}
 
 session_start();
 
+// Инициализация ответа
 $response = [
     'success' => false,
     'message' => '',
@@ -19,87 +41,93 @@ $response = [
 $error = false;
 $log = !empty($_SESSION['login']);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-   
-    if (isset($_POST['logout_form'])) {
-        session_destroy();
-        setcookie('login', '', time() - 3600);
-        setcookie('pass', '', time() - 3600);
-        $response['success'] = true;
-        $response['message'] = 'Вы успешно вышли';
-        echo json_encode($response);
-        exit;
+// Функция валидации формы
+function validateForm($data, $db, &$response, &$error) {
+    $messages = [
+        'fio_empty' => 'Пожалуйста, введите ваше ФИО',
+        'fio_invalid' => 'ФИО должно содержать только русские буквы и пробелы, до 150 символов',
+        'number_empty' => 'Пожалуйста, введите номер телефона',
+        'number_invalid' => 'Формат номера: +7XXXXXXXXXX или 8XXXXXXXXXX',
+        'email_empty' => 'Пожалуйста, введите адрес электронной почты',
+        'email_invalid' => 'Введите корректный email, например, example@mail.ru',
+        'date_empty' => 'Пожалуйста, выберите дату рождения',
+        'date_invalid' => 'Дата должна быть в формате ГГГГ-ММ-ДД и не позднее текущей',
+        'radio_invalid' => 'Выберите пол: мужской или женский',
+        'language_empty' => 'Выберите хотя бы один язык программирования',
+        'language_invalid' => 'Выбраны неверные языки программирования',
+        'language_limit' => 'Можно выбрать не более 5 языков программирования',
+        'bio_empty' => 'Пожалуйста, заполните поле биографии',
+        'bio_invalid' => 'Биография должна содержать до 1000 символов',
+        'check_invalid' => 'Необходимо согласиться с условиями контракта'
+    ];
+
+    // Кэширование списка языков
+    $cacheFile = 'languages_cache.php';
+    if (file_exists($cacheFile)) {
+        $valid_languages = include $cacheFile;
+    } else {
+        $dbLangs = $db->query("SELECT name FROM all_languages")->fetchAll(PDO::FETCH_COLUMN);
+        file_put_contents($cacheFile, '<?php return ' . var_export($dbLangs, true) . ';');
+        $valid_languages = $dbLangs;
     }
 
-    $fio = $_POST['fio'] ?? '';
-    $number = $_POST['number'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $date = $_POST['date'] ?? '';
-    $radio = $_POST['radio'] ?? '';
-    $language = isset($_POST['language']) ? explode(',', $_POST['language']) : [];
-    $bio = $_POST['bio'] ?? '';
-    $check = $_POST['check'] ?? '';
-
-    if (empty($fio)) {
-        $response['errors']['fio'] = 'Заполните поле';
+    // ФИО
+    if (empty($data['fio'])) {
+        $response['errors']['fio'] = $messages['fio_empty'];
         $error = true;
-    } elseif (!preg_match('/^([а-яё]+-?[а-яё]+)( [а-яё]+-?[а-яё]+){1,2}$/Diu', $fio)) {
-        $response['errors']['fio'] = 'Допустимы только русские буквы, формат: Имя Фамилия';
-        $error = true;
-    }
-
-    if (empty($number)) {
-        $response['errors']['number'] = 'Это поле пустое';
-        $error = true;
-    } elseif (strlen($number) != 11) {
-        $response['errors']['number'] = 'Поле должно содержать 11 цифр';
-        $error = true;
-    } elseif ($number != preg_replace('/\D/', '', $number)) {
-        $response['errors']['number'] = 'Другие символы, кроме цифр, не допускаются';
-        $error = true;
-    }
-
-    if (empty($email)) {
-        $response['errors']['email'] = 'Заполните поле';
-        $error = true;
-    } elseif (!preg_match('/^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/', $email)) {
-        $response['errors']['email'] = 'Пожалуйста, введите почту по образцу: example@mail.ru';
+    } elseif (!preg_match("/^[а-яА-Я\s]{1,150}$/u", trim($data['fio']))) {
+        $response['errors']['fio'] = $messages['fio_invalid'];
         $error = true;
     }
 
-    if (empty($date)) {
-        $response['errors']['date'] = 'Заполните поле';
+    // Номер телефона
+    if (empty($data['number'])) {
+        $response['errors']['number'] = $messages['number_empty'];
         $error = true;
-    } elseif (strtotime('now') < strtotime($date)) {
-        $response['errors']['date'] = 'Дата не может превышать нынешнюю';
-        $error = true;
-    }
-
-    if (empty($radio) || !preg_match('/^(M|W)$/', $radio)) {
-        $response['errors']['radio'] = 'Выберите пол';
+    } elseif (!preg_match("/^(\+7|8)\d{10}$/", trim($data['number']))) {
+        $response['errors']['number'] = $messages['number_invalid'];
         $error = true;
     }
 
-    if (empty($bio)) {
-        $response['errors']['bio'] = 'Заполните поле';
+    // Email
+    if (empty($data['email'])) {
+        $response['errors']['email'] = $messages['email_empty'];
         $error = true;
-    } elseif (strlen($bio) > 65535) {
-        $response['errors']['bio'] = 'Пожалуйста, сократите объем сообщения. Максимальное количество символов: 65535';
-        $error = true;
-    }
-
-    if (empty($check)) {
-        $response['errors']['check'] = 'Не ознакомлены с контрактом';
+    } elseif (!preg_match("/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/", trim($data['email']))) {
+        $response['errors']['email'] = $messages['email_invalid'];
         $error = true;
     }
 
+    // Дата рождения
+    if (empty($data['date'])) {
+        $response['errors']['date'] = $messages['date_empty'];
+        $error = true;
+    } elseif (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $data['date']) || strtotime($data['date']) > time()) {
+        $response['errors']['date'] = $messages['date_invalid'];
+        $error = true;
+    }
+
+    // Пол
+    if (empty($data['radio']) || !in_array($data['radio'], ['M', 'W'])) {
+        $response['errors']['radio'] = $messages['radio_invalid'];
+        $error = true;
+    }
+
+    // Языки программирования
+    $language = $data['language'] ?? [];
     if (empty($language)) {
-        $response['errors']['language'] = 'Выберите язык программирования';
+        $response['errors']['language'] = $messages['language_empty'];
+        $error = true;
+    } elseif (count($language) > 5) {
+        $response['errors']['language'] = $messages['language_limit'];
+        $error = true;
+    } elseif (count(array_diff($language, $valid_languages)) > 0) {
+        $response['errors']['language'] = $messages['language_invalid'];
         $error = true;
     } else {
         try {
-            $inQuery = implode(',', array_fill(0, count($language), '?'));
-            $dbLangs = $db->prepare("SELECT id, name FROM all_languages WHERE name IN ($inQuery)");
+            $placeholders = str_repeat('?,', count($language) - 1) . '?';
+            $dbLangs = $db->prepare("SELECT id, name FROM all_languages WHERE name IN ($placeholders)");
             foreach ($language as $key => $value) {
                 $dbLangs->bindValue(($key + 1), $value);
             }
@@ -107,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $languages = $dbLangs->fetchAll(PDO::FETCH_ASSOC);
             
             if ($dbLangs->rowCount() != count($language)) {
-                $response['errors']['language'] = 'Неверно выбраны языки';
+                $response['errors']['language'] = $messages['language_invalid'];
                 $error = true;
             }
         } catch (PDOException $e) {
@@ -116,10 +144,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    if (!$error) {
-        try {
-            if ($log) {
-                $form_id = $_POST['form_id'] ?? $_SESSION['form_id'] ?? null;
+    // Биография
+    if (empty($data['bio'])) {
+        $response['errors']['bio'] = $messages['bio_empty'];
+        $error = true;
+    } elseif (!preg_match("/^[\s\S]{1,1000}$/", trim($data['bio']))) {
+        $response['errors']['bio'] = $messages['bio_invalid'];
+        $error = true;
+    }
+
+    // Согласие с контрактом
+    if (empty($data['check']) || $data['check'] !== 'yes') {
+        $response['errors']['check'] = $messages['check_invalid'];
+        $error = true;
+    }
+
+    return [
+        'fio' => $data['fio'],
+        'number' => $data['number'],
+        'email' => $data['email'],
+        'date' => $data['date'],
+        'radio' => $data['radio'],
+        'language' => implode(',', $language),
+        'bio' => $data['bio'],
+        'check' => $data['check']
+    ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Обработка выхода из системы
+    if (isset($_POST['logout_form'])) {
+        session_destroy();
+        setcookie('login', '', time() - 3600);
+        setcookie('pass', '', time() - 3600);
+        $response['success'] = true;
+        $response['message'] = 'Вы успешно вышли';
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Получение данных формы
+    $data = [
+        'fio' => $_POST['fio'] ?? '',
+        'number' => $_POST['number'] ?? '',
+        'email' => $_POST['email'] ?? '',
+        'date' => $_POST['date'] ?? '',
+        'radio' => $_POST['radio'] ?? '',
+        'language' => isset($_POST['language']) ? explode(',', $_POST['language']) : [],
+        'bio' => $_POST['bio'] ?? '',
+        'check' => $_POST['check'] ?? ''
+    ];
+
+    // Валидация формы
+    $response['values'] = validateForm($data, $db, $response, $error);
+
+    // Если есть ошибки, возвращаем их
+    if ($error) {
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // Обработка данных в БД
+    try {
+        $db->beginTransaction();
+
+        if ($log) {
+            // Обновление данных авторизованного пользователя
+            $form_id = $_POST['form_id'] ?? $_SESSION['form_id'] ?? null;
             
             if (!$form_id) {
                 throw new Exception('Не удалось определить ID формы для обновления');
@@ -133,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             $stmt = $db->prepare("UPDATE dannye SET fio = ?, number = ?, email = ?, dat = ?, radio = ?, bio = ? WHERE id = ?");
-            $updateResult = $stmt->execute([$fio, $number, $email, $date, $radio, $bio, $form_id]);
+            $updateResult = $stmt->execute([$data['fio'], $data['number'], $data['email'], $data['date'], $data['radio'], $data['bio'], $form_id]);
             
             if (!$updateResult) {
                 throw new Exception('Ошибка при обновлении основных данных');
@@ -156,54 +247,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $response['success'] = true;
             $response['message'] = 'Данные успешно обновлены';
-            } else {
-               
-                $login = uniqid();
-                $pass = uniqid();
-                $mpass = md5($pass);
-                
-                $stmt = $db->prepare("INSERT INTO users (login, password) VALUES (?, ?)");
-                $stmt->execute([$login, $mpass]);
-                $user_id = $db->lastInsertId();
+        } else {
+            // Создание нового пользователя
+            $login = uniqid();
+            $pass = uniqid();
+            $mpass = password_hash($pass, PASSWORD_BCRYPT);
+            
+            $stmt = $db->prepare("INSERT INTO users (login, password) VALUES (?, ?)");
+            $stmt->execute([$login, $mpass]);
+            $user_id = $db->lastInsertId();
 
-                $stmt = $db->prepare("INSERT INTO dannye (user_id, fio, number, email, dat, radio, bio) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$user_id, $fio, $number, $email, $date, $radio, $bio]);
-                $fid = $db->lastInsertId();
+            $stmt = $db->prepare("INSERT INTO dannye (user_id, fio, number, email, dat, radio, bio) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $data['fio'], $data['number'], $data['email'], $data['date'], $data['radio'], $data['bio']]);
+            $fid = $db->lastInsertId();
 
-                $stmt1 = $db->prepare("INSERT INTO form_dannd_l (id_form, id_lang) VALUES (?, ?)");
-                foreach ($languages as $row) {
-                    $stmt1->execute([$fid, $row['id']]);
-                }
-
-               
-                $response['info'] = sprintf(
-                    'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong><br>и паролем <strong>%s</strong> для изменения данных.',
-                    htmlspecialchars($login),
-                    htmlspecialchars($pass)
-                );
+            $stmt1 = $db->prepare("INSERT INTO form_dannd_l (id_form, id_lang) VALUES (?, ?)");
+            foreach ($languages as $row) {
+                $stmt1->execute([$fid, $row['id']]);
             }
 
-            $response['success'] = true;
-            $response['message'] = 'Спасибо, результаты сохранены.';
-            $response['values'] = [
-                'fio' => $fio,
-                'number' => $number,
-                'email' => $email,
-                'date' => $date,
-                'radio' => $radio,
-                'language' => implode(',', $language),
-                'bio' => $bio,
-                'check' => $check
-            ];
-            
-        } catch (PDOException $e) {
+            $response['info'] = sprintf(
+                'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong><br>и паролем <strong>%s</strong> для изменения данных.',
+                htmlspecialchars($login),
+                htmlspecialchars($pass)
+            );
+        }
+
+        $response['success'] = true;
+        $response['message'] = 'Спасибо, результаты сохранены.';
+        $db->commit();
+    } catch (PDOException $e) {
+        $db->rollBack();
         $response['errors']['database'] = 'Ошибка базы данных: ' . $e->getMessage();
-        error_log('Database error: ' . $e->getMessage());
+        error_log('Database error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
     } catch (Exception $e) {
+        $db->rollBack();
         $response['errors']['update'] = $e->getMessage();
-        error_log('Update error: ' . $e->getMessage());
+        error_log('Update error: ' . $e->getMessage() . ' | File: ' . __FILE__ . ' | Line: ' . __LINE__);
     }
-    }
-    echo json_encode($response);
+    
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit;
 }
+?>
