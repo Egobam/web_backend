@@ -10,25 +10,31 @@ if (!empty($_SESSION['login'])) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user = 'u68860'; 
-    $pass = '8500150'; 
-    $db = new PDO('mysql:host=localhost;dbname=u68860', $user, $pass,
-        [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
+    $user = 'u68918'; 
+    $pass = '7758388'; 
+    $db = new PDO('mysql:host=localhost;dbname=u68918', $user, $pass,
+    [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); 
     
-    $login = $_POST['login'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $login = $_POST['login'];
+    $password = md5($_POST['password']);
     
     try {
-        // Проверка логина и пароля
-        $stmt = $db->prepare("SELECT id, password_hash FROM users WHERE login = ?");
-        $stmt->execute([$login]);
+        
+        $stmt = $db->prepare("SELECT id, role FROM users WHERE login = ? and password = ?");
+        $stmt->execute([$login, $password]);
         $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($user_data && password_verify($password, $user_data['password_hash'])) {
-            $_SESSION['login'] = $login;
+        if ($user_data) {
+            $_SESSION['login'] = $_POST['login'];
             $_SESSION['user_id'] = $user_data['id'];
-            // Роль не хранится в таблице users, поэтому перенаправляем на форму
-            header('Location: form.php#footer');
+            $_SESSION['role'] = $user_data['role']; 
+            
+            
+            if ($user_data['role'] === 'admin') {
+                header('Location: admin.php');
+            } else {
+                header('Location: form.php#footer');
+            }
             exit();
         } else {
             $error = 'Неверный логин или пароль';
@@ -42,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="bootstrap.min.css" />
     <title>Авторизация</title>
 </head>
+
 <body>
     <form action="" method="post" class="form">
         <div class="mess" style="color: red;"><?php echo $error; ?></div>
@@ -58,4 +66,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button class="button" type="submit">Войти</button>
     </form>
 </body>
+
 </html>

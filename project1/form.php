@@ -9,32 +9,32 @@ $log = false;
 if (!empty($_SESSION['login']) && !empty($_SESSION['user_id'])) {
     $log = true;
     
-    $user = 'u68860'; 
-    $pass = '8500150'; 
-    $db = new PDO('mysql:host=localhost;dbname=u68860', $user, $pass,
+    $user = 'u68918'; 
+    $pass = '7758388'; 
+    $db = new PDO('mysql:host=localhost;dbname=u68918', $user, $pass,
         [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     
     try {
-        // Загрузка данных пользователя
-        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+  
+        $stmt = $db->prepare("SELECT * FROM dannye WHERE user_id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user_data) {
             $values['fio'] = $user_data['fio'];
-            $values['number'] = $user_data['phone'];
+            $values['number'] = $user_data['number'];
             $values['email'] = $user_data['email'];
-            $values['date'] = $user_data['birthdate'];
-            $values['radio'] = $user_data['gender'];
+            $values['date'] = $user_data['dat'];
+            $values['radio'] = $user_data['radio'];
             $values['bio'] = $user_data['bio'];
-            $values['check'] = $user_data['contract'] ? 'on' : '';
             
-            // Загрузка языков программирования
-            $stmt = $db->prepare("SELECT pl.name FROM user_languages ul 
-                                JOIN programming_languages pl ON ul.language_id = pl.id 
-                                WHERE ul.user_id = ?");
-            $stmt->execute([$_SESSION['user_id']]);
+            $stmt = $db->prepare("SELECT al.name FROM form_dannd_l fdl 
+                                JOIN all_languages al ON fdl.id_lang = al.id 
+                                WHERE fdl.id_form = ?");
+            $stmt->execute([$user_data['id']]);
             $languages = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+            
+            $_SESSION['form_id'] = $user_data['id'];
         }
     } catch (PDOException $e) {
         $messages['info'] = 'Ошибка загрузки данных: ' . $e->getMessage();
@@ -54,6 +54,13 @@ if (!empty($_SESSION['login']) && !empty($_SESSION['user_id'])) {
     <link rel="stylesheet" type="text/css" href="slick/slick-theme.css" />
     <link href="styleproject.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!--
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap"
+      rel="stylesheet"
+    />-->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <title>Drupal</title>
@@ -866,149 +873,155 @@ if (!empty($_SESSION['login']) && !empty($_SESSION['user_id'])) {
 
         <!--Footer-->
         <div id="footer">
-        <footer class="footer">
+          <footer class="footer">
             <div class="footer-container">
-                <div class="text-content">
-                    <div class="slewa">
-                        <div class="cont">
-                            <div class="zayawka">
-                                <b>
-                                    Оставить заявку на
-                                    <div>поддержку сайта</div>
-                                </b>
-                            </div>
-                            <div class="podderjka">Срочно нужна поддержка сайта? Ваша команда не успевает справиться самостоятельно или предыдущий подрядчик не справился с работой? Тогда вам точно к нам! Просто оставьте заявку и наш менеджер с вами свяжется!</div>
-                            <div style="text-align: left;">
-                                <div class="nomertel">
-                                    <a href=""> 8 800 222-26-73</a>
-                                </div>
-                                <div class="pochta">
-                                    <a href=""> info@drupal-coder.ru</a>
-                                </div>
-                            </div>
-                        </div>
+              <div class="text-content">
+                <div class="slewa">
+                  <div class="cont">
+                    <div class="zayawka">
+                      <b>
+                        Оставить заявку на
+                        <div>поддержку сайта</div>
+                      </b>
                     </div>
-                    
-                    <form id="myForm" method="post" action="">
-                        <div class="head">
-                            <h2><b>Форма обратной связи</b></h2>
-                        </div>
-
-                        <div class="mess"><?php if(isset($messages['success'])) echo $messages['success']; ?></div>
-                        <div class="mess mess_info"><?php if(isset($messages['info'])) echo $messages['info']; ?></div>
-                        <div>
-                            <label> <input name="fio" class="input <?php echo ($errors['fio'] != NULL) ? 'red' : ''; ?>" value="<?php echo htmlspecialchars($values['fio']); ?>" type="text" placeholder="ФИО" /> </label>
-                            <div class="error"> <?php echo $messages['fio']?> </div>
-                        </div>
-                        
-                        <div>
-                            <label> <input name="number" class="input <?php echo ($errors['number'] != NULL) ? 'red' : ''; ?>" value="<?php echo htmlspecialchars($values['number']); ?>" type="tel" placeholder="Номер телефона" /> </label>
-                            <div class="error"> <?php echo $messages['number']?> </div>
-                        </div>
-                        
-                        <div>
-                            <label> <input name="email" class="input <?php echo ($errors['email'] != NULL) ? 'red' : ''; ?>" value="<?php echo htmlspecialchars($values['email']); ?>" type="text" placeholder="Почта" /> </label>
-                            <div class="error"> <?php echo $messages['email']?> </div>
-                        </div>
-                        
-                        <div>
-                            <label>
-                                <input name="date" class="input <?php echo ($errors['date'] != NULL) ? 'red' : ''; ?>" value="<?php if(strtotime($values['date']) > 100000) echo htmlspecialchars($values['date']); ?>" type="date" />
-                                <div class="error"> <?php echo $messages['date']?> </div>
-                            </label>
-                        </div>
-                        
-                        <div>
-                            <div>Пол</div>
-                            <div class="mb-1">
-                                <label>
-                                    <input name="radio" class="ml-2" type="radio" value="M" <?php if($values['radio'] == 'M') echo 'checked'; ?>/>
-                                    <span class="<?php echo ($errors['radio'] != NULL) ? 'error' : ''; ?>"> Мужской </span>
-                                </label>
-                                <label>
-                                    <input name="radio" class="ml-4" type="radio" value="W" <?php if($values['radio'] == 'W') echo 'checked'; ?>/>
-                                    <span class="<?php echo ($errors['radio'] != NULL) ? 'error' : ''; ?>"> Женский </span>
-                                </label>
-                            </div>
-                            <div class="error"> <?php echo $messages['radio']?> </div>
-                        </div>
-                        
-                        <div>
-                            <div>Любимые языки программирования</div>
-                            <select class="my-2 <?php echo ($errors['language'] != NULL) ? 'red' : ''; ?>" name="language[]" multiple="multiple">
-                                <option value="Pascal" <?php echo (in_array('Pascal', $languages)) ? 'selected' : ''; ?>>Pascal</option>
-                                <option value="C" <?php echo (in_array('C', $languages)) ? 'selected' : ''; ?>>C</option>
-                                <option value="C++" <?php echo (in_array('C++', $languages)) ? 'selected' : ''; ?>>C++</option>
-                                <option value="JavaScript" <?php echo (in_array('JavaScript', $languages)) ? 'selected' : ''; ?>>JavaScript</option>
-                                <option value="PHP" <?php echo (in_array('PHP', $languages)) ? 'selected' : ''; ?>>PHP</option>
-                                <option value="Python" <?php echo (in_array('Python', $languages)) ? 'selected' : ''; ?>>Python</option>
-                                <option value="Java" <?php echo (in_array('Java', $languages)) ? 'selected' : ''; ?>>Java</option>
-                                <option value="Haskel" <?php echo (in_array('Haskel', $languages)) ? 'selected' : ''; ?>>Haskel</option>
-                                <option value="Clojure" <?php echo (in_array('Clojure', $languages)) ? 'selected' : ''; ?>>Clojure</option>
-                                <option value="Scala" <?php echo (in_array('Scala', $languages)) ? 'selected' : ''; ?>>Scala</option>
-                            </select>
-                            <div class="error"> <?php echo $messages['language']?> </div>
-                        </div>
-                        
-                        <div class="my-2">
-                            <div>Биография</div>
-                            <label>
-                                <textarea name="bio" class="input <?php echo ($errors['bio'] != NULL) ? 'red' : ''; ?>" placeholder="Биография"><?php echo htmlspecialchars($values['bio']); ?></textarea>
-                                <div class="error"> <?php echo $messages['bio']?> </div>
-                            </label>
-                        </div>
-                        
-                        <div>
-                            <label>
-                                <input name="check" type="checkbox" <?php echo ($log || $values['check'] != '') ? 'checked' : ''; ?>/>
-                                С контрактом ознакомлен(а)
-                                <div class="error"> <?php echo $messages['check']?> </div>
-                            </label>
-                        </div>
-
-                        <div class="form-buttons">
-                            <?php if($log): ?>
-                                <button class="button edbut" type="submit" name="edit_form">Изменить</button>
-                                <button class="button logout-btn" type="submit" name="logout_form" id="logout-btn">Выйти</button>
-                            <?php else: ?>
-                                <button class="button" type="submit" id="submit-btn">Отправить</button>
-                                <a class="btnlike" href="login.php" id="login-link">Войти</a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
+                    <div class="podderjka">Срочно нужна поддержка сайта? Ваша команда не успевает справиться самостоятельно или предыдущий подрядчик не справился с работой? Тогда вам точно к нам! Просто оставьте заявку и наш менеджер с вами свяжется!</div>
+                    <div style="text-align: left;">
+                      <div class="nomertel">
+                        <a href=""> 8 800 222-26-73</a>
+                      </div>
+                      <div class="pochta">
+                        <a href=""> info@dpural-coder.ru</a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+               
+                 <form action="" method="post" class="form">
+	<?php if($log && isset($_SESSION['form_id'])): ?>
+        <input type="hidden" name="form_id" value="<?php echo $_SESSION['form_id']; ?>">
+    <?php endif; ?>
+      <div class="head">
+        <h2><b>Форма обратной связи</b></h2>
+      </div>
+
+      <div class="mess"><?php if(isset($messages['success'])) echo $messages['success']; ?></div>
+      <div class="mess mess_info"><?php if(isset($messages['info'])) echo $messages['info']; ?></div>
+      <div>
+        <label> <input name="fio" class="input <?php echo ($errors['fio'] != NULL) ? 'red' : ''; ?>" value="<?php echo $values['fio']; ?>" type="text" placeholder="ФИО" /> </label>
+        <div class="error"> <?php echo $messages['fio']?> </div>
+      </div>
+      
+      <div>
+        <label> <input name="number" class="input <?php echo ($errors['number'] != NULL) ? 'red' : ''; ?>" value="<?php echo $values['number']; ?>" type="tel" placeholder="Номер телефона" /> </label>
+        <div class="error"> <?php echo $messages['number']?> </div>
+      </div>
+      
+      <div>
+        <label> <input name="email" class="input <?php echo ($errors['email'] != NULL) ? 'red' : ''; ?>" value="<?php echo $values['email']; ?>" type="text" placeholder="Почта" /> </label>
+        <div class="error"> <?php echo $messages['email']?> </div>
+      </div>
+      
+      <div>
+        <label>
+          <input name="date" class="input <?php echo ($errors['date'] != NULL) ? 'red' : ''; ?>" value="<?php if(strtotime($values['date']) > 100000) echo $values['date']; ?>" type="date" />
+          <div class="error"> <?php echo $messages['date']?> </div>
+        </label>
+      </div>
+      
+      <div>
+        <div>Пол</div>
+        <div class="mb-1">
+          <label>
+            <input name="radio" class="ml-2" type="radio" value="M" <?php if($values['radio'] == 'M') echo 'checked'; ?>/>
+            <span class="<?php echo ($errors['radio'] != NULL) ? 'error' : ''; ?>"> Мужской </span>
+          </label>
+          <label>
+            <input name="radio" class="ml-4" type="radio" value="W" <?php if($values['radio'] == 'W') echo 'checked'; ?>/>
+            <span class="<?php echo ($errors['radio'] != NULL) ? 'error' : ''; ?>"> Женский </span>
+          </label>
+        </div>
+        <div class="error"> <?php echo $messages['radio']?> </div>
+      </div>
+      
+      <div>
+        <div>Любимые языки программирования</div>
+        <select class="my-2 <?php echo ($errors['language'] != NULL) ? 'red' : ''; ?>" name="language[]" multiple="multiple">
+          <option value="Pascal" <?php echo (in_array('Pascal', $languages)) ? 'selected' : ''; ?>>Pascal</option>
+          <option value="C" <?php echo (in_array('C', $languages)) ? 'selected' : ''; ?>>C</option>
+          <option value="C++" <?php echo (in_array('C++', $languages)) ? 'selected' : ''; ?>>C++</option>
+          <option value="JavaScript" <?php echo (in_array('JavaScript', $languages)) ? 'selected' : ''; ?>>JavaScript</option>
+          <option value="PHP" <?php echo (in_array('PHP', $languages)) ? 'selected' : ''; ?>>PHP</option>
+          <option value="Python" <?php echo (in_array('Python', $languages)) ? 'selected' : ''; ?>>Python</option>
+          <option value="Java" <?php echo (in_array('Java', $languages)) ? 'selected' : ''; ?>>Java</option>
+          <option value="Haskel" <?php echo (in_array('Haskel', $languages)) ? 'selected' : ''; ?>>Haskel</option>
+          <option value="Clojure" <?php echo (in_array('Clojure', $languages)) ? 'selected' : ''; ?>>Clojure</option>
+          <option value="Scala" <?php echo (in_array('Scala', $languages)) ? 'selected' : ''; ?>>Scala</option>
+        </select>
+        <div class="error"> <?php echo $messages['language']?> </div>
+      </div>
+      
+      <div class="my-2">
+        <div>Биография</div>
+        <label>
+          <textarea name="bio" class="input <?php echo ($errors['bio'] != NULL) ? 'red' : ''; ?>" placeholder="Биография"><?php echo $values['bio']; ?></textarea>
+          <div class="error"> <?php echo $messages['bio']?> </div>
+        </label>
+      </div>
+      
+      <div>
+         <label>
+            <input name="check" type="checkbox" <?php echo ($log || $values['check'] != NULL) ? 'checked' : ''; ?>/>
+              С контрактом ознакомлен(а)
+          <div class="error"> <?php echo $messages['check']?> </div>
+        </label>
+      </div>
+
+      <div class="form-buttons">
+    <?php if($log): ?>
+        <button class="button edbut" type="submit" name="edit_form">Изменить</button>
+        <button class="button logout-btn" type="submit" name="logout_form" id="logout-btn">Выйти</button>
+    <?php else: ?>
+        <button class="button" type="submit" id="submit-btn">Отправить</button>
+        <a class="btnlike" href="login.php" id="login-link">Войти</a>
+    <?php endif; ?>
+</div>
+    </form>
+              </div>
             </div>
             <div class="ss"></div>
             <div class="footer-container">
-                <div class="podfooter">
-                    <div class="social">
-                        <ul>
-                            <li class="links">
-                                <a href="" title="Facebook"><img src="img/facebook.png" /></a>
-                            </li>
-                            <li class="links">
-                                <a href="" title="Вконтакте"><img src="img/vk.png" /></a>
-                            </li>
-                            <li class="links">
-                                <a href="" title="Telegram"> <img src="img/telegram.png" /></a>
-                            </li>
-                            <li class="links">
-                                <a href="" title="Youtube"><img src="img/youtube.png" /></a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="podpod">
-                        Проект ООО «Инитлаб», Краснодар, Россия. <br />
-                        Drupal является зарегистрированной торговой маркой Dries Buytaert.
-                    </div>
+              <div class="podfooter">
+                <div class="social">
+                  <ul>
+                    <li class="links">
+                      <a href="" title="Facebook"><img src="img/facebook.png" /></a>
+                    </li>
+                    <li class="links">
+                      <a href="" title="Вконтакте"><img src="img/vk.png" /></a>
+                    </li>
+                    <li class="links">
+                      <a href="" title="Telegram"> <img src="img/telegram.png" /></a>
+                    </li>
+                    <li class="links">
+                      <a href="" title="Youtube"><img src="img/youtube.png" /></a>
+                    </li>
+                  </ul>
                 </div>
+                <div class="podpod">
+                  Проект ООО «Инитлаб», Краснодар, Россия. <br />
+                  Drupal валяется зарегистрированной торговой маркой Dries Buytaert.
+                </div>
+              </div>
             </div>
-        </footer>
-    </div>
+          </footer>
+        </div>
 
-    <script src="jquery-3.4.1.min.js"></script>
-    <script src="slick/slick.min.js"></script>
-    <script src="project.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-</body>
+        <!-- <script src="//code.jquery.com/jquery-1.11.0.min.js"></script> -->
+        <script src="jquery-3.4.1.min.js"></script>
+        <script src="slick/slick.min.js"></script>
+        <script src="project.js"></script>
+      </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  </body>
 </html>

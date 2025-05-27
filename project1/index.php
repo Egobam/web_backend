@@ -1,9 +1,9 @@
 <?php
 header('Content-Type: application/json');
 
-$user = 'u68860'; 
-$pass = '8500150'; 
-$db = new PDO('mysql:host=localhost;dbname=u68860', $user, $pass,
+$user = 'u68918'; 
+$pass = '7758388'; 
+$db = new PDO('mysql:host=localhost;dbname=u68918', $user, $pass,
     [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
 session_start();
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $date = $_POST['date'] ?? '';
     $radio = $_POST['radio'] ?? '';
-    $language = isset($_POST['language']) ? $_POST['language'] : [];
+    $language = isset($_POST['language']) ? explode(',', $_POST['language']) : [];
     $bio = $_POST['bio'] ?? '';
     $check = $_POST['check'] ?? '';
 
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         try {
             $inQuery = implode(',', array_fill(0, count($language), '?'));
-            $dbLangs = $db->prepare("SELECT id, name FROM programming_languages WHERE name IN ($inQuery)");
+            $dbLangs = $db->prepare("SELECT id, name FROM all_languages WHERE name IN ($inQuery)");
             foreach ($language as $key => $value) {
                 $dbLangs->bindValue(($key + 1), $value);
             }
@@ -119,66 +119,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!$error) {
         try {
             if ($log) {
-                // Обновление данных авторизованного пользователя
-                $user_id = $_SESSION['user_id'] ?? null;
+                $form_id = $_POST['form_id'] ?? $_SESSION['form_id'] ?? null;
             
-                if (!$user_id) {
-                    throw new Exception('Не удалось определить ID пользователя для обновления');
-                }
+            if (!$form_id) {
+                throw new Exception('Не удалось определить ID формы для обновления');
+            }
 
-                // Проверка существования пользователя
-                $checkStmt = $db->prepare("SELECT id FROM users WHERE id = ?");
-                $checkStmt->execute([$user_id]);
-                
-                if (!$checkStmt->fetch()) {
-                    throw new Exception('Пользователь не найден');
-                }
+            $checkStmt = $db->prepare("SELECT id FROM dannye WHERE id = ? AND user_id = ?");
+            $checkStmt->execute([$form_id, $_SESSION['user_id']]);
+            
+            if (!$checkStmt->fetch()) {
+                throw new Exception('Запись не найдена или нет прав доступа');
+            }
 
-                // Обновление данных в таблице users
-                $stmt = $db->prepare("UPDATE users SET fio = ?, phone = ?, email = ?, birthdate = ?, gender = ?, bio = ?, contract = ? WHERE id = ?");
-                $updateResult = $stmt->execute([$fio, $number, $email, $date, $radio, $bio, !empty($check), $user_id]);
-                
-                if (!$updateResult) {
-                    throw new Exception('Ошибка при обновлении основных данных');
-                }
+            $stmt = $db->prepare("UPDATE dannye SET fio = ?, number = ?, email = ?, dat = ?, radio = ?, bio = ? WHERE id = ?");
+            $updateResult = $stmt->execute([$fio, $number, $email, $date, $radio, $bio, $form_id]);
+            
+            if (!$updateResult) {
+                throw new Exception('Ошибка при обновлении основных данных');
+            }
 
-                // Удаление старых языков
-                $deleteStmt = $db->prepare("DELETE FROM user_languages WHERE user_id = ?");
-                $deleteResult = $deleteStmt->execute([$user_id]);
-                
-                if (!$deleteResult) {
-                    throw new Exception('Ошибка при удалении старых языков');
-                }
+            $deleteStmt = $db->prepare("DELETE FROM form_dannd_l WHERE id_form = ?");
+            $deleteResult = $deleteStmt->execute([$form_id]);
+            
+            if (!$deleteResult) {
+                throw new Exception('Ошибка при удалении старых языков');
+            }
 
-                // Добавление новых языков
-                $insertStmt = $db->prepare("INSERT INTO user_languages (user_id, language_id) VALUES (?, ?)");
-                foreach ($languages as $row) {
-                    $insertResult = $insertStmt->execute([$user_id, $row['id']]);
-                    if (!$insertResult) {
-                        throw new Exception('Ошибка при добавлении языков программирования');
-                    }
+            $insertStmt = $db->prepare("INSERT INTO form_dannd_l(id_form, id_lang) VALUES (?, ?)");
+            foreach ($languages as $row) {
+                $insertResult = $insertStmt->execute([$form_id, $row['id']]);
+                if (!$insertResult) {
+                    throw new Exception('Ошибка при добавлении языков программирования');
                 }
+            }
 
-                $response['success'] = true;
-                $response['message'] = 'Данные успешно обновлены';
+            $response['success'] = true;
+            $response['message'] = 'Данные успешно обновлены';
             } else {
-                // Создание нового пользователя
+               
                 $login = uniqid();
                 $pass = uniqid();
-                $password_hash = password_hash($pass, PASSWORD_DEFAULT); // Используем password_hash вместо md5
+                $mpass = md5($pass);
                 
-                // Вставка нового пользователя
-                $stmt = $db->prepare("INSERT INTO users (fio, phone, email, birthdate, gender, bio, contract, login, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$fio, $number, $email, $date, $radio, $bio, !empty($check), $login, $password_hash]);
+                $stmt = $db->prepare("INSERT INTO users (login, password) VALUES (?, ?)");
+                $stmt->execute([$login, $mpass]);
                 $user_id = $db->lastInsertId();
 
-                // Добавление языков программирования
-                $stmt1 = $db->prepare("INSERT INTO user_languages (user_id, language_id) VALUES (?, ?)");
+                $stmt = $db->prepare("INSERT INTO dannye (user_id, fio, number, email, dat, radio, bio) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$user_id, $fio, $number, $email, $date, $radio, $bio]);
+                $fid = $db->lastInsertId();
+
+                $stmt1 = $db->prepare("INSERT INTO form_dannd_l (id_form, id_lang) VALUES (?, ?)");
                 foreach ($languages as $row) {
-                    $stmt1->execute([$user_id, $row['id']]);
+                    $stmt1->execute([$fid, $row['id']]);
                 }
 
-                // Формирование сообщения с логином и паролем
+               
                 $response['info'] = sprintf(
                     'Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong><br>и паролем <strong>%s</strong> для изменения данных.',
                     htmlspecialchars($login),
@@ -200,12 +197,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ];
             
         } catch (PDOException $e) {
-            $response['errors']['database'] = 'Ошибка базы данных: ' . $e->getMessage();
-            error_log('Database error: ' . $e->getMessage());
-        } catch (Exception $e) {
-            $response['errors']['update'] = $e->getMessage();
-            error_log('Update error: ' . $e->getMessage());
-        }
+        $response['errors']['database'] = 'Ошибка базы данных: ' . $e->getMessage();
+        error_log('Database error: ' . $e->getMessage());
+    } catch (Exception $e) {
+        $response['errors']['update'] = $e->getMessage();
+        error_log('Update error: ' . $e->getMessage());
+    }
     }
     echo json_encode($response);
     exit;
